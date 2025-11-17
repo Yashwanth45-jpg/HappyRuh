@@ -1,0 +1,110 @@
+✅ 1. Environment Setup
+# Activate the virtual environment
+.\venv\Scripts\Activate.ps1
+
+# Install backend dependencies
+pip install -r requirements.txt
+
+# Navigate to frontend directory and install dependencies
+cd frontend
+npm install
+
+# Install TailwindCSS & required plugins
+npm install -D tailwindcss postcss autoprefixer
+
+# Return to project root
+cd ..
+
+
+
+✅ 2. Start Docker Services
+# Start all required Docker services (PostgreSQL, Qdrant, Ollama)
+docker-compose up -d
+
+# Verify running containers
+docker ps
+
+
+✅ 3. Load Data into Qdrant
+# Activate virtual environment if not active
+.\venv\Scripts\Activate.ps1
+
+# Load product data
+python src/load_products_to_qdrant.py
+
+
+
+✅ 4. Start Backend Service
+# Open a new terminal and activate venv
+.\venv\Scripts\Activate.ps1
+
+# Start FastAPI backend
+$ taskkill /F /6232 6232
+ERROR: Invalid argument/option - 'F:/'.
+Type "TASKKILL /?" for usage.
+$ taskkill /F /6232 6232
+ERROR: Invalid argument/option - 'F:/'.
+Type "TASKKILL /?" for usage.
+
+
+
+
+✅ 5. Start Mock LLM Service
+# Open a new terminal and activate venv
+.\venv\Scripts\Activate.ps1
+
+# Start mock LLM (runs on port 11434)
+python src/llm_mock.py
+
+
+✅ 6. Start Frontend Service
+# Open a new terminal
+cd frontend
+
+# Start Vite/Next.js development server
+npm run dev
+
+✅ 7. Verification Commands
+# Check backend health
+curl http://localhost:8000/health
+
+# Check Qdrant service
+curl http://localhost:6333
+
+# Check mock LLM service
+curl http://localhost:11434/api/version
+
+
+
+
+
+
+
+
+
+⚠️ Important Notes
+🔹 PowerShell Syntax
+
+PowerShell does not support &&.
+Use:
+
+Separate lines, or
+
+; between commands.
+
+🔹 Fix Port Conflicts
+
+If Python processes block ports:
+
+taskkill /F /IM python.exe
+
+🔹 Database Permissions
+
+If PostgreSQL denies access, grant permissions to the ruh user manually (using pgAdmin or SQL).
+
+🔹 Docker Desktop
+
+Ensure Docker Desktop is running before executing Docker commands.
+
+🔹 Downloading Models (When Using Real Ollama)
+docker exec -it chatnshop_ollama ollama pull llama3:instruct

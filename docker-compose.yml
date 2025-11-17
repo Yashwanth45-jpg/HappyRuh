@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  # qdrant (optional)
+  qdrant:
+    image: qdrant/qdrant:v1.15.1
+    container_name: chatnshop_qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+  # ollama for LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: chatnshop_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    container_name: chatnshop_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: happyruh
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # CLASSIFIER
+  classifier:
+    build:
+      context: .
+      dockerfile: Dockerfile.classifier
+    container_name: chatnshop_classifier
+    ports:
+      - "8001:8000"
+    command: uvicorn classifier_app:app --host 0.0.0.0 --port 8000
+
+  # Orchestrator (uses host.docker.internal to reach host services)
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: chatnshop_orchestrator
+    depends_on:
+      - classifier
+    environment:
+      # connect to host Qdrant (if you have a host Qdrant)
+      - QDRANT_HOST=host.docker.internal
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION=semantic_collection
+
+      # classifier inside compose -> use internal name
+      - CLASSIFIER_URL=http://classifier:8000/classify
+
+      # IMPORTANT: point to host's local Ollama (no llm container)
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.1:8b-instruct
+
+      - EMBED_MODEL=BAAI/bge-small-en-v1.5
+    ports:
+      - "8080:8080"
+    command: uvicorn app:app --host 0.0.0.0 --port 8080
+
+volumes:
+  qdrant_storage:
+  ollama_data:
+  postgres_data:
