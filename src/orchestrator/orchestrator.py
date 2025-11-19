@@ -3,10 +3,11 @@ import os
 import json
 import logging
 import re
-from typing import List, Tuple, Optional
+import uuid
+from typing import List, Tuple, Optional, Dict
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
-from .llm_connector import generate_response
+from .llm_connector import generate_response, get_llm_connector
 
 # Qdrant imports for filtering
 try:
@@ -190,6 +191,8 @@ def semantic_search(query: str, top_k: int = 4) -> str:
         try:
             vector = _emb_model.encode(query).tolist()
             
+            logger.info(f"Searching Qdrant with query: {query}")
+            
             # Build filter conditions
             filter_conditions = []
             
@@ -207,6 +210,7 @@ def semantic_search(query: str, top_k: int = 4) -> str:
                         range=models.Range(lte=max_price)
                     ))
                 filter_conditions.extend(price_conditions)
+                logger.info(f"Applied price filters: min={min_price}, max={max_price}")
             
             # Perform search with filters
             search_params = {"collection_name": QDRANT_COLLECTION, "query_vector": vector, "limit": top_k * 3}
@@ -214,24 +218,34 @@ def semantic_search(query: str, top_k: int = 4) -> str:
                 search_params["query_filter"] = models.Filter(must=filter_conditions)
                 
             hits = _qdrant.search(**search_params)
-            pieces: List[str] = []
-            seen_products = set()  # Track unique product names
+            logger.info(f"Qdrant returned {len(hits)} results")
             
-            for h in hits:
+            pieces: List[str] = []
+            seen_products = set()  # Track unique product IDs
+            
+            for idx, h in enumerate(hits):
                 payload = getattr(h, "payload", {}) or {}
-                title = payload.get("product_name") or payload.get("title") or ""
+                
+                # Try multiple field names for compatibility
+                title = payload.get("title") or payload.get("product_name") or ""
                 price = payload.get("price")
-                product_id = payload.get("product_id")
-                product_type = payload.get("type") or ""
+                product_id = payload.get("id") or payload.get("product_id") or ""
+                product_type = payload.get("product_type") or payload.get("type") or ""
                 description = payload.get("description") or ""
                 
-                # CRITICAL: Use ONLY product_id for deduplication (not title)
+                logger.info(f"Product {idx}: id={product_id}, title={title[:50] if title else 'N/A'}")
+                
+                # Skip if no product ID
                 if not product_id:
-                    continue  # Skip if no product ID
+                    logger.warning(f"Skipping product {idx}: no product_id")
+                    continue
                 
+                # Skip duplicates
                 if product_id in seen_products:
-                    continue  # Skip duplicates based on product_id only
+                    logger.info(f"Skipping duplicate product_id: {product_id}")
+                    continue
                 
+                # Add to results if has title
                 if title:
                     seen_products.add(product_id)
                     product_str = f"Product: {title}"
@@ -246,14 +260,18 @@ def semantic_search(query: str, top_k: int = 4) -> str:
                     if description:
                         product_str += f"\nDescription: {description[:300]}"
                     pieces.append(product_str)
+                    logger.info(f"Added product {idx} to results")
                     
                     # Stop once we have enough unique products
                     if len(pieces) >= top_k:
                         break
+                else:
+                    logger.warning(f"Skipping product {idx}: no title")
             
+            logger.info(f"Final result: {len(pieces)} products formatted")
             return "\n\n".join(pieces)
         except Exception as e:
-            logger.error(f"Qdrant search failed: {e}")
+            logger.error(f"Qdrant search failed: {e}", exc_info=True)
             pass
     
     # Fallback to local search
@@ -301,14 +319,67 @@ def _extract_price_filters(query: str) -> Tuple[Optional[float], Optional[float]
     return (None, None)
 
 
-def orchestrate_query(user_query: str) -> str:
+def orchestrate_query(
+    user_query: str, 
+    user_id: str = "anonymous", 
+    session_id: str = "default",
+    chat_history: List[Dict[str, str]] = None
+) -> str:
     """
     Full pipeline:
       - perform semantic search
-      - call LLM with context
+      - call LLM with context and conversation history
       - return clean, product-focused HTML
+      
+    Args:
+        user_query: The user's current message
+        user_id: User identifier for logging
+        session_id: Session identifier for logging
+        chat_history: List of previous messages [{'role': 'user'/'assistant', 'content': '...'}]
     """
     logger.info(f"--- Orchestrator processing query: '{user_query}'")
+
+    QUEUE_CONVO_PATH = os.getenv("CONVO_HIST_QUEUE_PATH", None)
+    query_id = str(uuid.uuid4())
+    queue_id = None  # Will store the ID returned from the queue endpoint
+    
+    logger.info(f"Generated query_id: {query_id}")
+    logger.info(f"QUEUE_CONVO_PATH: {QUEUE_CONVO_PATH}")
+    
+    if QUEUE_CONVO_PATH:
+        try:
+            import requests
+            payload = {
+                "id": query_id,
+                "user_id": user_id,
+                "session_id": session_id,
+                "query": user_query
+            }
+            logger.info(f"Attempting to POST to: {QUEUE_CONVO_PATH}")
+            logger.info(f"Payload: {payload}")
+            
+            resp = requests.post(QUEUE_CONVO_PATH, json=payload, timeout=10)
+            resp.raise_for_status()
+            
+            # Extract queue_id from response
+            try:
+                response_data = resp.json()
+                queue_id = response_data.get("queue_id") or response_data.get("id") or query_id
+                logger.info(f"Successfully queued conversation. Status: {resp.status_code}, queue_id: {queue_id}")
+                logger.info(f"Queue response: {response_data}")
+            except:
+                # If response is not JSON or doesn't have queue_id, use query_id
+                queue_id = query_id
+                logger.info(f"Successfully queued conversation. Status: {resp.status_code}, using query_id as fallback")
+                
+        except Exception as e:
+            logger.error(f"Failed to queue conversation history: {str(e)}", exc_info=True)
+            queue_id = query_id  # Fallback to query_id
+    else:
+        logger.warning("QUEUE_CONVO_PATH not set in environment variables")
+        queue_id = query_id
+            
+    logger.info(f"Using queue_id for completion: {queue_id}")
     
     try:
         # Search for relevant products
@@ -322,20 +393,70 @@ def orchestrate_query(user_query: str) -> str:
         
         logger.info(f"Found products context (length: {len(context)} chars)")
         
-        # Call LLM to generate response
-        logger.info("Calling LLM to generate response...")
-        llm_html = generate_response(user_query, context)
-        logger.info(f"LLM response generated (length: {len(llm_html)} chars)")
+        # Initialize conversation history if not provided
+        if chat_history is None:
+            chat_history = []
+        
+        # Call LLM to generate response using new chat-based approach
+        logger.info("Calling LLM to generate response with chat history...")
+        llm_connector = get_llm_connector()
+        llm_response = llm_connector.get_chat_response(
+            user_message=user_query,
+            chat_history=chat_history,
+            search_results=context
+        )
+        logger.info(f"LLM response generated (length: {len(llm_response)} chars)")
         
         # Wrap in clean container
         final_html = f"""
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
             <div style="margin-bottom: 20px;">
-                {llm_html}
+                {llm_response}
             </div>
         </div>
         """
         logger.info("Final HTML response prepared")
+        print("Final HTML length:", len(final_html))
+        # Store completion
+        if QUEUE_CONVO_PATH and queue_id:
+            try:
+                import requests
+                # Build the correct completion path using queue_id
+                # QUEUE_CONVO_PATH should be like "http://localhost:1234/api/conversations/queue"
+                # Completion endpoint: /api/conversations/queue/{queue_id}/complete
+                if QUEUE_CONVO_PATH.endswith('/queue'):
+                    path = f"{QUEUE_CONVO_PATH}/{queue_id}/complete"
+                else:
+                    # If path doesn't end with /queue, append the full path
+                    base_path = QUEUE_CONVO_PATH.rstrip('/')
+                    path = f"{base_path}/api/conversations/queue/{queue_id}/complete"
+                
+                payload = {
+                    "ai_response": final_html,
+                    "model_used": "ollama",
+                    "tokens_used": 0
+                }
+                logger.info(f"Attempting to POST completion to: {path}")
+                logger.info(f"Completion payload keys: {list(payload.keys())}")
+                
+                resp = requests.post(path, json=payload, timeout=10)
+                
+                # Log response details
+                logger.info(f"Completion response status: {resp.status_code}")
+                logger.info(f"Completion response body: {resp.text[:500]}")
+                
+                resp.raise_for_status()
+                
+                logger.info(f"Successfully stored completion. Status: {resp.status_code}")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Failed to store conversation completion - Request error: {str(e)}", exc_info=True)
+                logger.error(f"Request URL was: {path}")
+                logger.error(f"Response (if any): {getattr(e.response, 'text', 'No response')[:500]}")
+            except Exception as e:
+                logger.error(f"Failed to store conversation completion - Unexpected error: {str(e)}", exc_info=True)
+        else:
+            logger.warning("QUEUE_CONVO_PATH not set or queue_id not available, skipping completion storage")
+            
         return final_html
     except Exception as e:
         logger.error(f"Error in orchestrator: {str(e)}", exc_info=True)

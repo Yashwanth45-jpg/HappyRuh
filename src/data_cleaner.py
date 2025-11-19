@@ -33,16 +33,16 @@ def parse_price_value(price_like) -> float | None:
         return None
 
 
-def remove_unwanted_fields(product: dict) -> dict:
-    """
-    Remove unnecessary fields from product data.
-    Keep only essential fields for your application.
-    """
-    # Fields to keep
-    keep_fields = {
-        'id', 'title', 'body_html', 'product_type', 'handle',
-        'vendor', 'variants', 'image', 'images'
-    }
+# def remove_unwanted_fields(product: dict) -> dict:
+#     """
+#     Remove unnecessary fields from product data.
+#     Keep only essential fields for your application.
+#     """
+#     # Fields to keep
+#     keep_fields = {
+#         'id', 'title', 'body_html', 'product_type', 'handle',
+#         'vendor', 'variants', 'image', 'images'
+#     }
     
-    # Return only the fields we want
-    return {k: v for k, v in product.items() if k in keep_fields}
+#     # Return only the fields we want
+#     return {k: v for k, v in product.items() if k in keep_fields}

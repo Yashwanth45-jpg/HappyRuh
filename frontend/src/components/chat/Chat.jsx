@@ -1,28 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
 import ProductList from './ProductList';
 
-const Chat = () => {
+function Chat() {
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: 'bot',
-      text: "Hello! I'm your fragrance assistant. How can I help you find the perfect scent today?",
+      text: "Hello! I'm your product assistant. How can I help you find the perfect product today?",
       timestamp: new Date(),
     },
   ]);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   const handleSendMessage = async (text) => {
     // Add user message
@@ -53,7 +44,7 @@ const Chat = () => {
       }
 
       const data = await response.json();
-      console.log('Response data:', data); // Debug log
+      console.log('Response data:', data);
 
       // Add bot response
       const botMessage = {
@@ -66,11 +57,9 @@ const Chat = () => {
 
       // Update products - always set products from response (even if empty array)
       if (data.is_product_query) {
-        // For product queries, always update products state
         setProducts(data.products || []);
-        console.log('Updated products:', data.products); // Debug log
+        console.log('Updated products:', data.products);
       } else {
-        // For non-product queries, clear products
         setProducts([]);
       }
     } catch (error) {
@@ -82,7 +71,7 @@ const Chat = () => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-      setProducts([]); // Clear products on error
+      setProducts([]);
     } finally {
       setIsLoading(false);
     }
@@ -94,8 +83,8 @@ const Chat = () => {
       <div className={`${products.length > 0 ? 'flex-1' : 'w-full'} flex flex-col`}>
         {/* Header */}
         <div className="bg-gray-800 p-4 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-white">Fragrance Assistant</h1>
-          <p className="text-sm text-gray-400">Ask me about perfumes and colognes</p>
+          <h1 className="text-xl font-bold text-white">Product Assistant</h1>
+          <p className="text-sm text-gray-400">Ask me about our products</p>
         </div>
 
         {/* Messages */}
@@ -120,27 +109,21 @@ const Chat = () => {
         <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
       </div>
 
-      {/* Products Section */}
-      {(products.length > 0 || isLoading) && (
+      {/* Products Section - Show only when products exist */}
+      {products.length > 0 && (
         <div className="w-96 border-l border-gray-700 bg-gray-800">
           <div className="p-4 border-b border-gray-700">
             <h2 className="text-lg font-semibold text-white">
-              {isLoading ? 'Searching...' : `Products (${products.length})`}
+              Products ({products.length})
             </h2>
           </div>
           <div className="overflow-y-auto h-[calc(100vh-80px)]">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="text-gray-400">Loading products...</div>
-              </div>
-            ) : (
-              <ProductList products={products} />
-            )}
+            <ProductList products={products} />
           </div>
         </div>
       )}
     </div>
   );
-};
+}
 
 export default Chat;

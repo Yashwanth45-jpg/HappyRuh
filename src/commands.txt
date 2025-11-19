@@ -35,16 +35,22 @@ python src/load_products_to_qdrant.py
 
 
 ✅ 4. Start Backend Service
+# Method 1: Use the startup script (RECOMMENDED - kills old processes automatically)
+# For Windows CMD/PowerShell:
+start-backend.bat
+
+# For Git Bash:
+bash start-backend.sh
+
+# Method 2: Manual commands
 # Open a new terminal and activate venv
 .\venv\Scripts\Activate.ps1
 
+# Kill any existing Python processes first
+taskkill /F /IM python.exe
+
 # Start FastAPI backend
-$ taskkill /F /6232 6232
-ERROR: Invalid argument/option - 'F:/'.
-Type "TASKKILL /?" for usage.
-$ taskkill /F /6232 6232
-ERROR: Invalid argument/option - 'F:/'.
-Type "TASKKILL /?" for usage.
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 
 
@@ -58,10 +64,24 @@ python src/llm_mock.py
 
 
 ✅ 6. Start Frontend Service
+# Method 1: Use the startup script (RECOMMENDED - kills old processes automatically)
+# Navigate to frontend folder
+cd frontend
+
+# For Windows CMD/PowerShell:
+start-frontend.bat
+
+# For Git Bash:
+bash start-frontend.sh
+
+# Method 2: Manual commands
 # Open a new terminal
 cd frontend
 
-# Start Vite/Next.js development server
+# Kill any existing Node processes first
+taskkill /F /IM node.exe
+
+# Start Vite development server
 npm run dev
 
 ✅ 7. Verification Commands

@@ -29,8 +29,10 @@ logger = logging.getLogger("HappyRuH-Backend")
 
 # ----- Import orchestrator -----
 try:
-    from orchestrator.orchestrator import orchestrate_query
-except Exception:
+    from src.orchestrator.orchestrator import orchestrate_query
+    logger.info("✅ Orchestrator imported successfully")
+except Exception as e:
+    logger.error(f"❌ Failed to import orchestrator: {e}", exc_info=True)
     orchestrate_query = None
 
 # ----------------------------------------------------
@@ -109,8 +111,13 @@ def extract_price_filter(message: str) -> dict:
 # ----------------------------------------------------
 # PYDANTIC MODELS
 # ----------------------------------------------------
+class ChatMessage(BaseModel):
+    role: str  # 'user' or 'assistant'
+    content: str
+
 class ChatRequest(BaseModel):
     message: str
+    history: Optional[list[ChatMessage]] = []
 
 class ChatResponse(BaseModel):
     response: str
@@ -139,159 +146,116 @@ def health():
 
 
 # ----------------------------------------------------
-# ROUTE: CHAT (For simple chat interface)
+# ROUTE: CHAT (For simple chat interface with orchestrator)
 # ----------------------------------------------------
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    """Handle chat messages and return JSON response"""
+    """Handle chat messages and return JSON response using orchestrator"""
     try:
-        message = request.message.lower().strip()
+        message = request.message.strip()
         logger.info(f"Received message: {message}")
         
-        # Simple greeting responses
-        greetings = ["hi", "hello", "hey", "greetings"]
-        if message in greetings:
-            return ChatResponse(
-                response="Hello! I'm your fragrance assistant. How can I help you find the perfect scent today?",
-                products=[],
-                is_product_query=False
+        # Convert Pydantic models to dict for orchestrator
+        chat_history = [{'role': msg.role, 'content': msg.content} for msg in request.history] if request.history else []
+        logger.info(f"Chat history length: {len(chat_history)}")
+        
+        # Always use orchestrator - it will handle routing to Qwen or Llama based on search results
+        if orchestrate_query is not None:
+            logger.info(f"Using orchestrator for query: {message}")
+            
+            # Call orchestrator with chat history (returns HTML)
+            html_response = orchestrate_query(
+                user_query=message,
+                chat_history=chat_history
             )
-        
-        # Check if it's a product-related query
-        product_keywords = ["perfume", "fragrance", "scent", "cologne", "smell", "aroma", "product", "show", "find", "woody", "floral", "fresh", "oriental", "feel good", "stone"]
-        
-        if any(keyword in message for keyword in product_keywords):
-            # Extract price filters
+            
+            # Extract price filters for product search
             price_filters = extract_price_filter(message)
             logger.info(f"Price filters: {price_filters}")
             
-            # Perform semantic search
-            if not qdrant or not embedder:
-                logger.error("Qdrant or embedder not initialized")
-                return ChatResponse(
-                    response="Search service is currently unavailable. Please make sure Qdrant is running.",
-                    products=[],
-                    is_product_query=False
-                )
-            
+            # Perform semantic search for products to display in sidebar
+            products = []
             try:
-                # Encode query
-                query_vector = embedder.encode(message).tolist()
-                logger.info(f"Generated embedding vector of size: {len(query_vector)}")
-                
-                # Build Qdrant filter
-                qdrant_filter = None
-                if price_filters["min_price"] is not None or price_filters["max_price"] is not None:
-                    conditions = []
+                if qdrant and embedder:
+                    query_vector = embedder.encode(message).tolist()
                     
-                    if price_filters["min_price"] is not None:
-                        conditions.append(
-                            models.FieldCondition(
-                                key="price",
-                                range=models.Range(gte=price_filters["min_price"])
-                            )
-                        )
-                    
-                    if price_filters["max_price"] is not None:
-                        conditions.append(
-                            models.FieldCondition(
-                                key="price",
-                                range=models.Range(lte=price_filters["max_price"])
-                            )
-                        )
-                    
-                    qdrant_filter = models.Filter(must=conditions)
-                    logger.info(f"Applied price filter: {qdrant_filter}")
-                
-                # Search in Qdrant with filters
-                logger.info(f"Searching in collection: {QDRANT_COLLECTION}")
-                search_results = qdrant.search(
-                    collection_name=QDRANT_COLLECTION,
-                    query_vector=query_vector,
-                    query_filter=qdrant_filter,
-                    limit=10
-                )
-                
-                logger.info(f"Found {len(search_results)} results from Qdrant")
-                
-                if search_results and len(search_results) > 0:
-                    products = []
-                    for idx, r in enumerate(search_results):
-                        try:
-                            payload = r.payload or {}
-                            
-                            product_id = payload.get("id") or f"product_{idx}_{int(time.time())}"
-                            
-                            # Safely get price
-                            price = payload.get("price")
-                            if price is None:
-                                price = 0
-                            else:
-                                try:
-                                    price = float(price)
-                                except (ValueError, TypeError):
-                                    price = 0
-                            
-                            # Safely get images
-                            images = payload.get("images", [])
-                            if not isinstance(images, list):
-                                images = []
-                            
-                            product = {
-                                "id": str(product_id),
-                                "title": str(payload.get("title", "Untitled Product")),
-                                "description": str(payload.get("description", "No description available")),
-                                "price": price,
-                                "images": images,
-                                "score": float(r.score)
-                            }
-                            products.append(product)
-                            logger.info(f"Product {idx+1}: {product['title']} - ${product['price']} (Score: {product['score']:.3f})")
-                        except Exception as product_error:
-                            logger.error(f"Error processing product {idx}: {product_error}")
-                            continue
-                    
-                    if len(products) > 0:
-                        # Build response message
-                        response_msg = f"I found {len(products)} fragrances"
-                        if price_filters["max_price"]:
-                            response_msg += f" under ${price_filters['max_price']}"
-                        if price_filters["min_price"]:
-                            response_msg += f" above ${price_filters['min_price']}"
-                        response_msg += " matching your search:"
+                    # Build Qdrant filter
+                    qdrant_filter = None
+                    if price_filters["min_price"] is not None or price_filters["max_price"] is not None:
+                        conditions = []
                         
-                        return ChatResponse(
-                            response=response_msg,
-                            products=products,
-                            is_product_query=True
-                        )
-                
-                # No results found
-                filter_msg = ""
-                if price_filters["max_price"]:
-                    filter_msg = f" under ${price_filters['max_price']}"
-                elif price_filters["min_price"]:
-                    filter_msg = f" above ${price_filters['min_price']}"
-                
-                return ChatResponse(
-                    response=f"I couldn't find any products{filter_msg} matching '{message}'. Try different keywords like 'perfume', 'cologne', or 'fragrance'.",
-                    products=[],
-                    is_product_query=True
-                )
-                
-            except Exception as search_error:
-                logger.error(f"Search error: {str(search_error)}")
-                import traceback
-                traceback.print_exc()
-                
-                return ChatResponse(
-                    response=f"Sorry, I encountered an error while searching. Error: {str(search_error)}",
-                    products=[],
-                    is_product_query=False
-                )
-        else:
+                        if price_filters["min_price"] is not None:
+                            conditions.append(
+                                models.FieldCondition(
+                                    key="price",
+                                    range=models.Range(gte=price_filters["min_price"])
+                                )
+                            )
+                        
+                        if price_filters["max_price"] is not None:
+                            conditions.append(
+                                models.FieldCondition(
+                                    key="price",
+                                    range=models.Range(lte=price_filters["max_price"])
+                                )
+                            )
+                        
+                        qdrant_filter = models.Filter(must=conditions)
+                    
+                    # Search in Qdrant
+                    search_results = qdrant.search(
+                        collection_name=QDRANT_COLLECTION,
+                        query_vector=query_vector,
+                        query_filter=qdrant_filter,
+                        limit=10
+                    )
+                    
+                    logger.info(f"Found {len(search_results)} products")
+                    
+                    for idx, r in enumerate(search_results):
+                        payload = r.payload or {}
+                        product_id = payload.get("id") or f"product_{idx}_{int(time.time())}"
+                        price = payload.get("price", 0)
+                        if price is None:
+                            price = 0
+                        else:
+                            try:
+                                price = float(price)
+                            except:
+                                price = 0
+                        
+                        images = payload.get("images", [])
+                        if not isinstance(images, list):
+                            images = []
+                        
+                        product = {
+                            "id": str(product_id),
+                            "title": str(payload.get("title", "Untitled Product")),
+                            "description": str(payload.get("description", "No description available")),
+                            "price": price,
+                            "images": images,
+                            "score": float(r.score)
+                        }
+                        products.append(product)
+            except Exception as e:
+                logger.error(f"Error searching products: {e}")
+                products = []
+            
+            # Extract text from HTML response for display
+            import re
+            text_response = re.sub(r'<[^>]+>', '', html_response)
+            text_response = text_response.strip()
+            
+            # Return response with products (if any)
             return ChatResponse(
-                response="I can help you find fragrances! Try asking about perfumes, colognes, or specific scents. You can also specify a price range like 'under 500' or 'between 100 and 300'.",
+                response=text_response,
+                products=products,
+                is_product_query=len(products) > 0
+            )
+        else:
+            # Fallback if orchestrator not available
+            return ChatResponse(
+                response="I can help you find fragrances! Try asking about perfumes, colognes, or specific scents.",
                 products=[],
                 is_product_query=False
             )
