@@ -1,0 +1,190 @@
+{
+  "checkout_intent_keywords": {
+    "checkout": {
+      "primary_keywords": [
+        "checkout", "check out", "purchase", "buy", "order", "complete", "finalize", "proceed", "confirm", "submit"
+      ],
+      "action_phrases": [
+        "I'm ready to checkout",
+        "proceed to payment",
+        "complete purchase",
+        "finalize order",
+        "confirm order",
+        "submit order",
+        "place order",
+        "buy now",
+        "purchase now",
+        "checkout now"
+      ],
+      "urgency_keywords": [
+        "now", "immediately", "asap", "quickly", "fast", "right now", "today", "urgent"
+      ],
+      "misspellings": [
+        "chekout", "checkot", "chek out", "check ot", "purchse", "purchace", "ordr", "compleat"
+      ],
+      "uk_variations": [
+        "checkout", "check out", "purchase", "buy", "order", "complete", "finalise", "proceed", "confirm", "submit"
+      ],
+      "priority_weights": {
+        "checkout": 1.0,
+        "check out": 0.9,
+        "purchase": 0.8,
+        "buy": 0.8,
+        "order": 0.7,
+        "complete": 0.6,
+        "finalize": 0.6,
+        "proceed": 0.5,
+        "confirm": 0.5,
+        "submit": 0.4
+      }
+    },
+    "apply_coupon": {
+      "primary_keywords": [
+        "coupon", "discount", "promo", "code", "voucher", "deal", "offer", "savings", "reduction", "off"
+      ],
+      "action_phrases": [
+        "apply coupon",
+        "use discount code",
+        "enter promo code",
+        "apply discount",
+        "use coupon code",
+        "enter coupon",
+        "apply promo",
+        "use voucher",
+        "enter discount code",
+        "apply savings"
+      ],
+      "code_indicators": [
+        "code", "coupon code", "promo code", "discount code", "voucher code", "offer code", "deal code"
+      ],
+      "misspellings": [
+        "coupn", "coupen", "discout", "discot", "promo", "vouchr", "voucer", "savngs", "reducton"
+      ],
+      "uk_variations": [
+        "coupon", "discount", "promo", "code", "voucher", "deal", "offer", "savings", "reduction", "off"
+      ],
+      "priority_weights": {
+        "coupon": 1.0,
+        "discount": 0.9,
+        "promo": 0.8,
+        "code": 0.7,
+        "voucher": 0.6,
+        "deal": 0.5,
+        "offer": 0.5,
+        "savings": 0.4,
+        "reduction": 0.3,
+        "off": 0.2
+      }
+    },
+    "select_payment": {
+      "primary_keywords": [
+        "payment", "pay", "card", "credit", "debit", "paypal", "apple pay", "google pay", "cash", "bank"
+      ],
+      "payment_methods": [
+        "credit card", "debit card", "visa", "mastercard", "amex", "american express", "paypal", "apple pay", "google pay", "bank transfer", "cash on delivery", "cod"
+      ],
+      "action_phrases": [
+        "pay with credit card",
+        "use paypal",
+        "pay with apple pay",
+        "select payment method",
+        "choose payment option",
+        "payment method",
+        "how to pay",
+        "payment options",
+        "billing information",
+        "payment details"
+      ],
+      "misspellings": [
+        "paymnt", "paypal", "appl pay", "googl pay", "cred card", "debit card", "visa", "mastercard"
+      ],
+      "uk_variations": [
+        "payment", "pay", "card", "credit", "debit", "paypal", "apple pay", "google pay", "cash", "bank"
+      ],
+      "priority_weights": {
+        "payment": 1.0,
+        "pay": 0.9,
+        "card": 0.8,
+        "credit": 0.7,
+        "debit": 0.7,
+        "paypal": 0.6,
+        "apple pay": 0.5,
+        "google pay": 0.5,
+        "cash": 0.4,
+        "bank": 0.3
+      }
+    },
+    "select_shipping": {
+      "primary_keywords": [
+        "shipping", "delivery", "ship", "deliver", "express", "standard", "overnight", "free", "fast", "slow"
+      ],
+      "shipping_methods": [
+        "standard shipping", "express shipping", "overnight shipping", "free shipping", "ground shipping", "air shipping", "next day", "same day", "pickup", "store pickup"
+      ],
+      "action_phrases": [
+        "shipping options",
+        "delivery options",
+        "shipping method",
+        "delivery method",
+        "how to ship",
+        "shipping address",
+        "delivery address",
+        "shipping cost",
+        "delivery cost",
+        "shipping time"
+      ],
+      "misspellings": [
+        "shiping", "delivry", "deliver", "expres", "overnite", "standrd", "fre", "fast", "slw"
+      ],
+      "uk_variations": [
+        "shipping", "delivery", "ship", "deliver", "express", "standard", "overnight", "free", "fast", "slow"
+      ],
+      "priority_weights": {
+        "shipping": 1.0,
+        "delivery": 0.9,
+        "ship": 0.8,
+        "deliver": 0.8,
+        "express": 0.7,
+        "standard": 0.6,
+        "overnight": 0.5,
+        "free": 0.4,
+        "fast": 0.3,
+        "slow": 0.2
+      }
+    },
+    "remove_coupon": {
+      "primary_keywords": [
+        "remove", "delete", "cancel", "clear", "take off", "unapply", "disable", "deactivate"
+      ],
+      "action_phrases": [
+        "remove coupon",
+        "remove discount",
+        "cancel coupon",
+        "clear discount",
+        "take off coupon",
+        "unapply discount",
+        "disable coupon",
+        "deactivate discount"
+      ],
+      "coupon_references": [
+        "coupon", "discount", "promo", "code", "voucher", "deal", "offer", "savings"
+      ],
+      "misspellings": [
+        "remov", "delet", "cancle", "clr", "tak off", "unaply", "disabl", "deactivat"
+      ],
+      "uk_variations": [
+        "remove", "delete", "cancel", "clear", "take off", "unapply", "disable", "deactivate"
+      ],
+      "priority_weights": {
+        "remove": 1.0,
+        "delete": 0.9,
+        "cancel": 0.8,
+        "clear": 0.7,
+        "take off": 0.6,
+        "unapply": 0.5,
+        "disable": 0.4,
+        "deactivate": 0.3
+      }
+    }
+  }
+}

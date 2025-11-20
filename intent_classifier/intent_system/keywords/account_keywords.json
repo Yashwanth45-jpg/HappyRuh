@@ -1,0 +1,263 @@
+{
+  "account_intent_keywords": {
+    "login": {
+      "primary_keywords": [
+        "login", "log in", "sign in", "signin", "access", "enter", "authenticate", "connect", "join", "open"
+      ],
+      "action_phrases": [
+        "I want to login",
+        "sign me in",
+        "log into my account",
+        "access my account",
+        "enter my account",
+        "open my account",
+        "connect to my account",
+        "authenticate me",
+        "let me in",
+        "login please"
+      ],
+      "account_references": [
+        "account", "profile", "user", "member", "customer", "client", "subscriber"
+      ],
+      "misspellings": [
+        "logn", "loggin", "signn", "acces", "entr", "autenticate", "conect", "joinn", "opn"
+      ],
+      "uk_variations": [
+        "login", "log in", "sign in", "signin", "access", "enter", "authenticate", "connect", "join", "open"
+      ],
+      "priority_weights": {
+        "login": 1.0,
+        "log in": 0.9,
+        "sign in": 0.8,
+        "signin": 0.7,
+        "access": 0.6,
+        "enter": 0.5,
+        "authenticate": 0.4,
+        "connect": 0.3,
+        "join": 0.2,
+        "open": 0.1
+      }
+    },
+    "logout": {
+      "primary_keywords": [
+        "logout", "log out", "sign out", "signout", "exit", "leave", "disconnect", "close", "quit", "end"
+      ],
+      "action_phrases": [
+        "I want to logout",
+        "sign me out",
+        "log out of my account",
+        "exit my account",
+        "leave my account",
+        "disconnect from my account",
+        "close my account",
+        "quit my account",
+        "end my session",
+        "logout please"
+      ],
+      "misspellings": [
+        "logot", "loggout", "signn out", "exitt", "leav", "disconect", "clos", "quitt", "endd"
+      ],
+      "uk_variations": [
+        "logout", "log out", "sign out", "signout", "exit", "leave", "disconnect", "close", "quit", "end"
+      ],
+      "priority_weights": {
+        "logout": 1.0,
+        "log out": 0.9,
+        "sign out": 0.8,
+        "signout": 0.7,
+        "exit": 0.6,
+        "leave": 0.5,
+        "disconnect": 0.4,
+        "close": 0.3,
+        "quit": 0.2,
+        "end": 0.1
+      }
+    },
+    "register": {
+      "primary_keywords": [
+        "register", "sign up", "signup", "create", "new", "join", "enroll", "subscribe", "become", "start"
+      ],
+      "action_phrases": [
+        "I want to register",
+        "create an account",
+        "sign up for an account",
+        "join the site",
+        "enroll in the service",
+        "subscribe to the service",
+        "become a member",
+        "start an account",
+        "new account",
+        "register please"
+      ],
+      "account_types": [
+        "account", "profile", "membership", "subscription", "registration", "enrollment"
+      ],
+      "misspellings": [
+        "registr", "registar", "signn up", "creat", "neww", "joinn", "enrol", "subscrib", "becom", "startt"
+      ],
+      "uk_variations": [
+        "register", "sign up", "signup", "create", "new", "join", "enroll", "subscribe", "become", "start"
+      ],
+      "priority_weights": {
+        "register": 1.0,
+        "sign up": 0.9,
+        "signup": 0.8,
+        "create": 0.7,
+        "new": 0.6,
+        "join": 0.5,
+        "enroll": 0.4,
+        "subscribe": 0.3,
+        "become": 0.2,
+        "start": 0.1
+      }
+    },
+    "view_profile": {
+      "primary_keywords": [
+        "profile", "account", "information", "details", "personal", "user", "member", "customer", "data", "info"
+      ],
+      "action_phrases": [
+        "show my profile",
+        "view my account",
+        "my profile information",
+        "account details",
+        "personal information",
+        "user details",
+        "member information",
+        "customer data",
+        "my info",
+        "profile page"
+      ],
+      "profile_sections": [
+        "personal info", "contact info", "billing info", "shipping info", "preferences", "settings", "privacy", "security"
+      ],
+      "misspellings": [
+        "profil", "proffile", "acount", "informaton", "detals", "personl", "usre", "membr", "custmer", "dta"
+      ],
+      "uk_variations": [
+        "profile", "account", "information", "details", "personal", "user", "member", "customer", "data", "info"
+      ],
+      "priority_weights": {
+        "profile": 1.0,
+        "account": 0.9,
+        "information": 0.8,
+        "details": 0.7,
+        "personal": 0.6,
+        "user": 0.5,
+        "member": 0.4,
+        "customer": 0.3,
+        "data": 0.2,
+        "info": 0.1
+      }
+    },
+    "view_orders": {
+      "primary_keywords": [
+        "orders", "order", "purchases", "purchase", "history", "past", "previous", "recent", "all", "list"
+      ],
+      "action_phrases": [
+        "show my orders",
+        "view order history",
+        "my past purchases",
+        "previous orders",
+        "recent orders",
+        "all my orders",
+        "order list",
+        "purchase history",
+        "order history",
+        "my orders"
+      ],
+      "time_references": [
+        "today", "yesterday", "this week", "this month", "last month", "this year", "last year", "recent", "past", "previous"
+      ],
+      "misspellings": [
+        "ordrs", "ordr", "purchses", "purchas", "histry", "pst", "previus", "recnt", "al", "lst"
+      ],
+      "uk_variations": [
+        "orders", "order", "purchases", "purchase", "history", "past", "previous", "recent", "all", "list"
+      ],
+      "priority_weights": {
+        "orders": 1.0,
+        "order": 0.9,
+        "purchases": 0.8,
+        "purchase": 0.7,
+        "history": 0.6,
+        "past": 0.5,
+        "previous": 0.4,
+        "recent": 0.3,
+        "all": 0.2,
+        "list": 0.1
+      }
+    },
+    "track_order": {
+      "primary_keywords": [
+        "track", "tracking", "trace", "follow", "monitor", "status", "location", "where", "progress", "update"
+      ],
+      "action_phrases": [
+        "where is my order",
+        "track my package",
+        "order status",
+        "tracking information",
+        "package location",
+        "delivery status",
+        "shipping status",
+        "order progress",
+        "tracking number",
+        "order update"
+      ],
+      "tracking_terms": [
+        "tracking number", "order number", "package id", "shipment id", "delivery id", "reference number"
+      ],
+      "misspellings": [
+        "trak", "trac", "tracng", "folow", "monitr", "statis", "locaton", "wher", "progres", "updat"
+      ],
+      "uk_variations": [
+        "track", "tracking", "trace", "follow", "monitor", "status", "location", "where", "progress", "update"
+      ],
+      "priority_weights": {
+        "track": 1.0,
+        "tracking": 0.9,
+        "trace": 0.8,
+        "follow": 0.7,
+        "monitor": 0.6,
+        "status": 0.5,
+        "location": 0.4,
+        "where": 0.3,
+        "progress": 0.2,
+        "update": 0.1
+      }
+    },
+    "update_profile": {
+      "primary_keywords": [
+        "update", "edit", "modify", "change", "alter", "revise", "amend", "correct"
+      ],
+      "action_phrases": [
+        "update my profile",
+        "edit my information",
+        "change my details",
+        "modify my account",
+        "update personal info",
+        "edit contact info",
+        "change my address",
+        "update my preferences"
+      ],
+      "profile_sections": [
+        "personal info", "contact info", "billing info", "shipping info", "preferences", "settings", "privacy", "security"
+      ],
+      "misspellings": [
+        "updat", "edt", "modify", "chang", "alt", "revis", "amend", "correct"
+      ],
+      "uk_variations": [
+        "update", "edit", "modify", "change", "alter", "revise", "amend", "correct"
+      ],
+      "priority_weights": {
+        "update": 1.0,
+        "edit": 0.9,
+        "modify": 0.8,
+        "change": 0.7,
+        "alter": 0.6,
+        "revise": 0.5,
+        "amend": 0.4,
+        "correct": 0.3
+      }
+    }
+  }
+}

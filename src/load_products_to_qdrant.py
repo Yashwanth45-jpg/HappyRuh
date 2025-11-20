@@ -89,6 +89,17 @@ def load_products():
     products = fetch_all_raw_products()
     
     print(f"✅ Loaded {len(products)} products from JSON")
+    
+    # Filter out tickets and events
+    original_count = len(products)
+    products = [
+        p for p in products 
+        if p.get("product_type", "").lower() not in ["ticket", "event"]
+    ]
+    filtered_count = original_count - len(products)
+    if filtered_count > 0:
+        print(f"🔍 Filtered out {filtered_count} tickets/events ({len(products)} products remaining)")
+    
     # Test mode - limit products
     if TEST_MODE:
         products = products[:TEST_PRODUCT_LIMIT]
@@ -163,13 +174,20 @@ def upload_products_with_summarization(products, use_fast_summarization=True):
         # Generate embedding
         embedding = embedder.encode(embed_text).tolist()
         
-        # Create point with sequential ID (Qdrant-safe)
-        # Use idx+1 as the point ID, store original product_id in payload
+        # Convert product_id to integer for Qdrant point ID
+        try:
+            point_id = int(product_id)
+        except (ValueError, TypeError):
+            # Fallback to sequential ID if product_id is not a valid integer
+            point_id = idx + 1
+            print(f"   ⚠️  Warning: Invalid product_id '{product_id}', using sequential ID {point_id}")
+        
+        # Create point with product ID
         point = models.PointStruct(
-            id=idx + 1,  # Sequential integer ID for Qdrant
+            id=point_id,  # Use product ID as point ID
             vector=embedding,
             payload={
-                "id": product_id,  # Original product ID stored in payload
+                "id": product_id,  # Also keep in payload for consistency
                 "title": title,
                 "description": description,  # Store description (summarized or full)
                 "description_full": full_description,  # Keep original body_html
