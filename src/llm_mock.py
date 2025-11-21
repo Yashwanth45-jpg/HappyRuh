@@ -55,8 +55,8 @@ def get_relevant_products(query: str, limit: int = 3) -> list:
         query_vector = embedder.encode(query).tolist()
         results = qdrant.search(
             collection_name=QDRANT_COLLECTION,
-            query_vector=query_vector,
-            limit=limit,
+            query_vector=("text", query_vector),  # Named vector format
+            limit=limit
         )
         
         products = []

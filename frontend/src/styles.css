@@ -25,3 +25,64 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Product Tag Styles */
+.product-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  margin: 2px 4px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  color: white;
+  text-decoration: none;
+}
+
+.product-tags-container {
+  margin: 12px 0;
+  padding: 8px;
+  background: rgba(248, 249, 250, 0.1);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.show-more-btn {
+  display: inline-block;
+  background: #6c757d;
+  color: white;
+  padding: 4px 10px;
+  margin: 2px 4px;
+  border-radius: 15px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s ease;
+}
+
+.show-more-btn:hover {
+  background: #5a6268;
+}
+
+/* Message content styling */
+.message-content p {
+  margin: 0.5rem 0;
+}
+
+.message-content p:first-child {
+  margin-top: 0;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}

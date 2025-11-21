@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test HTML Response</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Test Query: show me perfumes for men</h2>
+        <hr>
+        
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+            <style>
+                .product-tag {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 6px 12px;
+                    margin: 2px 4px;
+                    border-radius: 20px;
+                    text-decoration: none;
+                    font-size: 13px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .product-tag:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                }
+                .product-tags-container {
+                    margin: 12px 0;
+                    padding: 8px;
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    display: inline-block;
+                }
+                .show-more-btn {
+                    display: inline-block;
+                    background: #6c757d;
+                    color: white;
+                    padding: 4px 10px;
+                    margin: 2px 4px;
+                    border-radius: 15px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    border: none;
+                    transition: background 0.3s ease;
+                }
+                .show-more-btn:hover {
+                    background: #5a6268;
+                }
+            </style>
+            <div style="margin-bottom: 20px;">
+                <p>Hey! I've got some <strong>perfume</strong> suggestions for you that are perfect for men who want a confident vibe. Check out these top picks:</p>
+
+<p><a href="https://happyruh.in/products/mystic-oud-fragrance" class="product-tag" data-product-id="7760563601470" target="_blank">Mystic Oud</a> (₹500) - deep, earthy scent with oud and incense. Perfect for those who want a strong, sophisticated fragrance.</p>
+
+<p><a href="https://happyruh.in/products/scent-haven-fragrance" class="product-tag" data-product-id="7760537518142" target="_blank">Scent Haven</a> (₹500) - crisp citrus with rich woods. Great for those who want a fresh, energetic scent.</p>
+
+<p><a href="https://happyruh.in/products/ever-essence
+            </div>
+            <script>
+                document.querySelectorAll('.show-more-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const container = this.parentElement;
+                        const hiddenTags = container.querySelectorAll('.product-tag.hidden-tag');
+                        hiddenTags.forEach(tag => {
+                            tag.classList.remove('hidden-tag');
+                            tag.style.display = 'inline-block';
+                        });
+                        this.style.display = 'none';
+                    });
+                });
+            </script>
+        </div>
+        
+    </div>
+</body>
+</html>

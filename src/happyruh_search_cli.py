@@ -10,7 +10,11 @@ qdrant = QdrantClient(url=QDRANT_URL)
 
 def search_qdrant(query, top_k=5):
     q_vec = embedder.encode([query])[0].tolist()
-    results = qdrant.search(collection_name=QDRANT_COLLECTION, query_vector=q_vec, limit=top_k)
+    results = qdrant.search(
+        collection_name=QDRANT_COLLECTION,
+        query_vector=("text", q_vec),  # Named vector format
+        limit=top_k
+    )
     if not results:
         print("No results found.")
         return

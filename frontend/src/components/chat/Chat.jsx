@@ -12,8 +12,18 @@ function Chat() {
       timestamp: new Date(),
     },
   ]);
-  const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  const handleShowProducts = (products) => {
+    setSelectedProducts(products);
+    setIsPanelOpen(true);
+  };
+
+  const handleClosePanel = () => {
+    setIsPanelOpen(false);
+  };
 
   const handleSendMessage = async (text) => {
     // Add user message
@@ -25,9 +35,6 @@ function Chat() {
     };
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
-
-    // Clear products immediately when starting a new search
-    setProducts([]);
 
     try {
       // Use /chat endpoint
@@ -46,22 +53,15 @@ function Chat() {
       const data = await response.json();
       console.log('Response data:', data);
 
-      // Add bot response
+      // Add bot response with associated products
       const botMessage = {
         id: Date.now() + 1,
         type: 'bot',
         text: data.response,
         timestamp: new Date(),
+        products: data.is_product_query ? (data.products || []) : [],
       };
       setMessages((prev) => [...prev, botMessage]);
-
-      // Update products - always set products from response (even if empty array)
-      if (data.is_product_query) {
-        setProducts(data.products || []);
-        console.log('Updated products:', data.products);
-      } else {
-        setProducts([]);
-      }
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage = {
@@ -71,7 +71,6 @@ function Chat() {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-      setProducts([]);
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +79,7 @@ function Chat() {
   return (
     <div className="flex h-screen bg-gray-900">
       {/* Chat Section */}
-      <div className={`${products.length > 0 ? 'flex-1' : 'w-full'} flex flex-col`}>
+      <div className={`${isPanelOpen ? 'flex-1' : 'w-full'} flex flex-col transition-all`}>
         {/* Header */}
         <div className="bg-gray-800 p-4 border-b border-gray-700">
           <h1 className="text-xl font-bold text-white">Product Assistant</h1>
@@ -90,7 +89,11 @@ function Chat() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble 
+              key={message.id} 
+              message={message}
+              onShowProducts={handleShowProducts}
+            />
           ))}
           {isLoading && (
             <div className="flex justify-start">
@@ -109,16 +112,39 @@ function Chat() {
         <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
       </div>
 
-      {/* Products Section - Show only when products exist */}
-      {products.length > 0 && (
-        <div className="w-96 border-l border-gray-700 bg-gray-800">
-          <div className="p-4 border-b border-gray-700">
-            <h2 className="text-lg font-semibold text-white">
-              Products ({products.length})
-            </h2>
+      {/* Products Panel - Slide from right */}
+      {isPanelOpen && selectedProducts && (
+        <div className="w-96 border-l border-gray-700 bg-gray-800 flex flex-col animate-slide-in">
+          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg 
+                className="w-5 h-5 text-purple-400" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" 
+                />
+              </svg>
+              <h2 className="text-lg font-semibold text-white">
+                {selectedProducts.length} {selectedProducts.length === 1 ? 'Product' : 'Products'}
+              </h2>
+            </div>
+            <button
+              onClick={handleClosePanel}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <div className="overflow-y-auto h-[calc(100vh-80px)]">
-            <ProductList products={products} />
+          <div className="overflow-y-auto flex-1">
+            <ProductList products={selectedProducts} />
           </div>
         </div>
       )}

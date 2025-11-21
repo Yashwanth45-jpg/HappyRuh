@@ -205,7 +205,7 @@ async def chat(request: ChatRequest):
                     # Search in Qdrant
                     search_results = qdrant.search(
                         collection_name=QDRANT_COLLECTION,
-                        query_vector=query_vector,
+                        query_vector=("text", query_vector),  # Named vector format
                         query_filter=qdrant_filter,
                         limit=10
                     )

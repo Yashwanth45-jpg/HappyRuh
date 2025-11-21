@@ -10,7 +10,7 @@ import os
 from typing import Optional
 
 # LM Studio - Fast lightweight model for summarization (Using Ollama Qwen)
-LMSTUDIO_URL = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:11435")
+LMSTUDIO_URL = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:11434")
 LMSTUDIO_MODEL = os.getenv("LMSTUDIO_MODEL", "qwen2.5:1.5b")
 
 # Ollama - More powerful but slower fallback

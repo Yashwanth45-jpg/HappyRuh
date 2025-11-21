@@ -174,9 +174,12 @@ def _semantic_search_local(query: str, top_k: int = 4) -> str:
                 pass
         
         # Build product string with all details
+        product_handle = product.get("handle", "")
         product_str = f"Product: {title}"
         if product_id:
             product_str += f"\nID: {product_id}"
+        if product_handle:
+            product_str += f"\nHandle: {product_handle}"
         if product_type:
             product_str += f"\nType: {product_type}"
         if price:
@@ -228,7 +231,11 @@ def semantic_search(query: str, top_k: int = 4) -> str:
                 logger.info(f"Applied price filters: min={min_price}, max={max_price}")
             
             # Perform search with filters
-            search_params = {"collection_name": QDRANT_COLLECTION, "query_vector": vector, "limit": top_k * 3}
+            search_params = {
+                "collection_name": QDRANT_COLLECTION,
+                "query_vector": ("text", vector),  # Named vector format: (name, vector)
+                "limit": top_k * 3
+            }
             if filter_conditions and models:
                 search_params["query_filter"] = models.Filter(must=filter_conditions)
                 
@@ -508,9 +515,11 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
                     confidence=llm_result['confidence'],
                     entities={},
                     metadata={
+                        'needs_clarification': llm_result.get('needs_clarification', False),
+                        'reasoning': llm_result.get('reasoning', 'No keyword match - LLM classification'),
                         'strategy': 'llm_fallback',
-                        'needs_clarification': False,
-                        'reasoning': llm_result.get('reasoning', ''),
+                        'confidence': llm_result['confidence'],
+                        'category': category.value,
                         'processing_time_ms': 0
                     }
                 )
@@ -521,7 +530,13 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
             action_code=ActionCode.SEARCH_PRODUCTS,
             confidence=0.0,
             entities={},
-            metadata={'strategy': 'keyword_matching', 'needs_clarification': False}
+            metadata={
+                'needs_clarification': False,
+                'reasoning': 'No keyword match found',
+                'strategy': 'keyword_matching',
+                'confidence': 0.0,
+                'category': 'UNKNOWN'
+            }
         )
     
     # STEP 3: We have a keyword match - check confidence and match type
@@ -575,8 +590,11 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
             confidence=confidence,
             entities=entities,
             metadata={
-                'strategy': 'keyword_matching',
                 'needs_clarification': False,
+                'reasoning': f'High confidence keyword match ({match_type})',
+                'strategy': 'keyword_matching',
+                'confidence': confidence,
+                'category': category.value,
                 'processing_time_ms': match_result.processing_time_ms,
                 'matched_keywords': [m.keyword for m in match_result.matched_keywords],
                 'total_matches': match_result.total_matches,
@@ -590,6 +608,7 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
         
         # Generate clarification message
         clarification_msg = None
+        reasoning = f'Medium confidence {match_type} match - may need clarification'
         if match_result.best_match_type == 'fuzzy':
             clarification_msg = f"I think you want to {category.value.lower().replace('_', ' ')}, but I'm not entirely sure. Could you clarify?"
         
@@ -599,8 +618,11 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
             confidence=confidence,
             entities=entities,
             metadata={
-                'strategy': 'keyword_matching',
                 'needs_clarification': True,
+                'reasoning': reasoning,
+                'strategy': 'keyword_matching',
+                'confidence': confidence,
+                'category': category.value,
                 'clarification_message': clarification_msg,
                 'processing_time_ms': match_result.processing_time_ms,
                 'matched_keywords': [m.keyword for m in match_result.matched_keywords],
@@ -648,10 +670,12 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
                     confidence=llm_result['confidence'],
                     entities=entities,
                     metadata={
-                        'strategy': 'hybrid_llm_validation',
                         'needs_clarification': llm_needs_clarification,
+                        'reasoning': llm_result.get('reasoning', 'LLM validation override'),
+                        'strategy': 'hybrid_llm_validation',
+                        'confidence': llm_result['confidence'],
+                        'category': llm_category.value,
                         'clarification_message': clarification_msg,
-                        'reasoning': llm_result.get('reasoning', ''),
                         'keyword_match': category.value,
                         'keyword_confidence': confidence,
                         'processing_time_ms': match_result.processing_time_ms
@@ -665,8 +689,11 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
             confidence=confidence,
             entities=entities,
             metadata={
-                'strategy': 'keyword_matching_low_confidence',
                 'needs_clarification': True,
+                'reasoning': f'Low confidence {match_type} match - needs validation',
+                'strategy': 'keyword_matching_low_confidence',
+                'confidence': confidence,
+                'category': category.value,
                 'clarification_message': f"I'm not very confident about this. Did you mean to {category.value.lower().replace('_', ' ')}?",
                 'processing_time_ms': match_result.processing_time_ms,
                 'matched_keywords': [m.keyword for m in match_result.matched_keywords],
@@ -674,6 +701,91 @@ def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
                 'best_match_type': match_result.best_match_type
             }
         )
+
+
+def _clean_llm_html_response(html_response: str) -> str:
+    """
+    Clean LLM response by removing any embedded <style> or <script> tags
+    that the LLM might have included (we'll add our own).
+    
+    Args:
+        html_response: Raw HTML response from LLM
+        
+    Returns:
+        Cleaned HTML without style/script tags
+    """
+    import re
+    
+    # Remove any <style>...</style> blocks
+    html_response = re.sub(r'<style[^>]*>.*?</style>', '', html_response, flags=re.DOTALL)
+    
+    # Remove any <script>...</script> blocks
+    html_response = re.sub(r'<script[^>]*>.*?</script>', '', html_response, flags=re.DOTALL)
+    
+    return html_response.strip()
+
+
+def _add_collapsible_product_tags(html_response: str) -> str:
+    """
+    Post-process LLM response to wrap product links in a collapsible container.
+    Shows max 2 product tags, hides rest behind a "show more" button.
+    
+    Args:
+        html_response: Raw HTML response from LLM with product-tag links
+        
+    Returns:
+        Processed HTML with collapsible product tag containers
+    """
+    import re
+    
+    # First, clean any embedded styles/scripts from LLM
+    html_response = _clean_llm_html_response(html_response)
+    
+    # Find all product-tag links
+    product_tag_pattern = r'<a[^>]*class="product-tag"[^>]*>.*?</a>'
+    matches = list(re.finditer(product_tag_pattern, html_response, re.DOTALL))
+    
+    if len(matches) <= 2:
+        # 2 or fewer tags - no need to collapse
+        return html_response
+    
+    # Extract all product tags
+    tags = [match.group(0) for match in matches]
+    
+    # Build collapsible container
+    visible_tags = tags[:2]
+    hidden_tags = tags[2:]
+    
+    # Create container with first 2 tags visible and rest hidden
+    container_html = '<div class="product-tags-container">'
+    container_html += ''.join(visible_tags)
+    
+    # Add hidden tags with display:none
+    for tag in hidden_tags:
+        # Add hidden-tag class and inline style
+        hidden_tag = tag.replace('class="product-tag"', 'class="product-tag hidden-tag" style="display:none;"')
+        container_html += hidden_tag
+    
+    # Add show more button
+    container_html += f'<button class="show-more-btn">+{len(hidden_tags)} more</button>'
+    container_html += '</div>'
+    
+    # Replace first occurrence of product tags with container
+    # Remove all individual product tags from response
+    processed = html_response
+    for match in reversed(matches):  # Remove from end to start to preserve indices
+        processed = processed[:match.start()] + processed[match.end():]
+    
+    # Insert container at the end of the first paragraph or at the end
+    if '<p>' in processed:
+        # Insert after first closing </p> tag
+        first_p_end = processed.find('</p>') + 4
+        processed = processed[:first_p_end] + '\n' + container_html + '\n' + processed[first_p_end:]
+    else:
+        # Append at the end
+        processed = processed + '\n' + container_html
+    
+    return processed
 
 
 def orchestrate_query(
@@ -830,14 +942,13 @@ def orchestrate_query(
         )
         logger.info(f"LLM response generated (length: {len(llm_response)} chars)")
         
-        # Wrap in clean container
-        final_html = f"""
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-            <div style="margin-bottom: 20px;">
-                {llm_response}
-            </div>
-        </div>
-        """
+        # Post-process to add collapsible product tag functionality
+        processed_response = _add_collapsible_product_tags(llm_response)
+        
+        # Return just the content without wrapping in styles/scripts
+        # The frontend will handle the styling
+        final_html = processed_response.strip()
+        
         logger.info("Final HTML response prepared")
         print("Final HTML length:", len(final_html))
         # Store completion
