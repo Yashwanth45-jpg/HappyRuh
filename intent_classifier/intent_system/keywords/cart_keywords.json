@@ -1,0 +1,187 @@
+{
+  "cart_intent_keywords": {
+    "cart_quantity": {
+      "numbers": [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"
+      ],
+      "quantity_phrases": [
+        "quantity of",
+        "amount of",
+        "how many",
+        "number of",
+        "count of"
+      ]
+    },
+    "cart_status": {
+      "status_keywords": [
+        "total", "subtotal", "price", "cost", "amount", "sum", "total cost"
+      ],
+      "status_phrases": [
+        "what's my total",
+        "how much is in my cart",
+        "cart total",
+        "cart subtotal",
+        "total price",
+        "total cost"
+      ]
+    },
+    "add_to_cart": {
+      "primary_keywords": [
+        "add", "put", "place", "include", "take", "buy", "purchase", "get"
+      ],
+      "cart_references": [
+        "cart", "basket", "bag", "shopping cart", "shopping basket"
+      ],
+      "action_phrases": [
+        "add to cart",
+        "add to basket",
+        "put in cart",
+        "put in basket",
+        "add this",
+        "I'll take this",
+        "I want this",
+        "buy this",
+        "purchase this",
+        "get this"
+      ],
+      "quantity_keywords": [
+        "one", "two", "three", "four", "five", "1", "2", "3", "4", "5", "quantity", "amount", "how many"
+      ],
+      "misspellings": [
+        "ad", "put", "plac", "includ", "tak", "by", "purchse", "get"
+      ],
+      "uk_variations": [
+        "add", "put", "place", "include", "take", "buy", "purchase", "get"
+      ],
+      "priority_weights": {
+        "add": 1.0,
+        "put": 0.9,
+        "place": 0.8,
+        "include": 0.7,
+        "take": 0.6,
+        "buy": 0.5,
+        "purchase": 0.4,
+        "get": 0.3
+      }
+    },
+    "remove_from_cart": {
+      "primary_keywords": [
+        "remove", "delete", "take out", "get rid of", "eliminate", "exclude"
+      ],
+      "action_phrases": [
+        "remove from cart",
+        "remove from basket",
+        "take out of cart",
+        "delete from cart",
+        "remove this",
+        "don't want this",
+        "get rid of this",
+        "exclude this"
+      ],
+      "misspellings": [
+        "remov", "delet", "tak out", "get rid of", "eliminat", "exclud"
+      ],
+      "uk_variations": [
+        "remove", "delete", "take out", "get rid of", "eliminate", "exclude"
+      ],
+      "priority_weights": {
+        "remove": 1.0,
+        "delete": 0.9,
+        "take out": 0.8,
+        "get rid of": 0.7,
+        "eliminate": 0.6,
+        "exclude": 0.5
+      }
+    },
+    "update_cart": {
+      "primary_keywords": [
+        "update", "change", "modify", "adjust", "edit", "alter"
+      ],
+      "action_phrases": [
+        "update quantity",
+        "change quantity",
+        "modify cart",
+        "adjust amount",
+        "edit cart",
+        "change to",
+        "make it",
+        "update to"
+      ],
+      "misspellings": [
+        "updat", "chang", "modify", "adjust", "edt", "alt"
+      ],
+      "uk_variations": [
+        "update", "change", "modify", "adjust", "edit", "alter"
+      ],
+      "priority_weights": {
+        "update": 1.0,
+        "change": 0.9,
+        "modify": 0.8,
+        "adjust": 0.7,
+        "edit": 0.6,
+        "alter": 0.5
+      }
+    },
+    "view_cart": {
+      "primary_keywords": [
+        "view", "show", "see", "display", "check", "look at"
+      ],
+      "action_phrases": [
+        "show my cart",
+        "view my cart",
+        "see my cart",
+        "what's in my cart",
+        "what's in my basket",
+        "display cart",
+        "check cart",
+        "show cart contents",
+        "view cart contents"
+      ],
+      "misspellings": [
+        "vew", "sho", "se", "disply", "chek", "lok at"
+      ],
+      "uk_variations": [
+        "view", "show", "see", "display", "check", "look at"
+      ],
+      "priority_weights": {
+        "view": 1.0,
+        "show": 0.9,
+        "see": 0.8,
+        "display": 0.7,
+        "check": 0.6,
+        "look at": 0.5
+      }
+    },
+    "clear_cart": {
+      "primary_keywords": [
+        "clear", "empty", "remove all", "delete all", "clean", "reset"
+      ],
+      "action_phrases": [
+        "clear my cart",
+        "empty my cart",
+        "clear cart",
+        "empty cart",
+        "remove everything",
+        "delete all items",
+        "start over",
+        "clear all",
+        "reset cart"
+      ],
+      "misspellings": [
+        "clr", "emty", "remov al", "delet al", "cln", "rst"
+      ],
+      "uk_variations": [
+        "clear", "empty", "remove all", "delete all", "clean", "reset"
+      ],
+      "priority_weights": {
+        "clear": 1.0,
+        "empty": 0.9,
+        "remove all": 0.8,
+        "delete all": 0.7,
+        "clean": 0.6,
+        "reset": 0.5
+      }
+    }
+  }
+}

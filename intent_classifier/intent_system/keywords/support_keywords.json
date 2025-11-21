@@ -1,0 +1,206 @@
+{
+  "support_intent_keywords": {
+    "faq": {
+      "primary_keywords": [
+        "faq", "frequently asked", "questions", "guide", "information", "details", "explanation"
+      ],
+      "question_starters": [
+        "how do I", "what is", "why does", "when will", "where can", "can I", "is it possible", "do you", "are you", "will you"
+      ],
+      "action_phrases": [
+        "how do I return an item",
+        "what's your return policy",
+        "how long does shipping take",
+        "do you offer free shipping",
+        "what payment methods do you accept",
+        "how do I cancel an order",
+        "what's your warranty policy",
+        "how do I track my order",
+        "do you ship internationally",
+        "what's your customer service number"
+      ],
+      "common_questions": [
+        "return policy", "shipping time", "payment methods", "warranty", "tracking", "international shipping", "customer service", "cancellation", "refund", "exchange"
+      ],
+      "misspellings": [
+        "fq", "frequenty", "questons", "hel", "ho", "wht", "wy", "wen", "wher", "gide"
+      ],
+      "uk_variations": [
+        "faq", "frequently asked", "questions", "help", "how", "what", "why", "when", "where", "guide"
+      ],
+      "priority_weights": {
+        "faq": 1.0,
+        "frequently asked": 0.9,
+        "questions": 0.8,
+        "guide": 0.7,
+        "information": 0.6,
+        "details": 0.5,
+        "explanation": 0.4
+      }
+    },
+    "contact_support": {
+      "primary_keywords": [
+        "support", "help", "assistance", "service", "contact", "speak", "talk", "call", "email", "chat"
+      ],
+      "action_phrases": [
+        "I need help",
+        "contact support",
+        "speak to someone",
+        "I have a problem",
+        "customer service",
+        "technical support",
+        "get help",
+        "need assistance",
+        "talk to support",
+        "call support"
+      ],
+      "support_types": [
+        "customer service", "technical support", "billing support", "shipping support", "product support", "account support"
+      ],
+      "contact_methods": [
+        "phone", "email", "chat", "ticket", "call", "message", "contact form", "live chat", "support ticket"
+      ],
+      "misspellings": [
+        "suport", "hel", "assistnce", "servce", "contct", "spk", "tlk", "cal", "emal", "cht"
+      ],
+      "uk_variations": [
+        "support", "help", "assistance", "service", "contact", "speak", "talk", "call", "email", "chat"
+      ],
+      "priority_weights": {
+        "support": 1.0,
+        "help": 0.9,
+        "assistance": 0.8,
+        "service": 0.7,
+        "contact": 0.6,
+        "speak": 0.5,
+        "talk": 0.4,
+        "call": 0.3,
+        "email": 0.2,
+        "chat": 0.1
+      }
+    },
+    "complaint": {
+      "primary_keywords": [
+        "complaint", "complain", "problem", "issue", "wrong", "bad", "terrible", "awful", "disappointed", "angry"
+      ],
+      "action_phrases": [
+        "I want to complain",
+        "submit a complaint",
+        "I'm not satisfied",
+        "this is unacceptable",
+        "file a complaint",
+        "I have a complaint",
+        "report a problem",
+        "this is wrong",
+        "I'm disappointed",
+        "this is terrible"
+      ],
+      "complaint_types": [
+        "product quality", "shipping delay", "wrong item", "damaged item", "poor service", "billing issue", "website problem", "app problem"
+      ],
+      "emotion_keywords": [
+        "angry", "frustrated", "disappointed", "upset", "annoyed", "irritated", "mad", "furious", "outraged", "disgusted"
+      ],
+      "misspellings": [
+        "complain", "complnt", "problm", "issu", "wrog", "bd", "teribl", "awfl", "disapointed", "angy"
+      ],
+      "uk_variations": [
+        "complaint", "complain", "problem", "issue", "wrong", "bad", "terrible", "awful", "disappointed", "angry"
+      ],
+      "priority_weights": {
+        "complaint": 1.0,
+        "complain": 0.9,
+        "problem": 0.8,
+        "issue": 0.7,
+        "wrong": 0.6,
+        "bad": 0.5,
+        "terrible": 0.4,
+        "awful": 0.3,
+        "disappointed": 0.2,
+        "angry": 0.1
+      }
+    },
+    "return_item": {
+      "primary_keywords": [
+        "return", "send back", "refund", "exchange", "replace", "send back", "give back", "take back", "bring back", "ship back"
+      ],
+      "action_phrases": [
+        "I want to return this",
+        "how do I return an item",
+        "return policy",
+        "I need to send this back",
+        "return request",
+        "return this item",
+        "send this back",
+        "exchange this item",
+        "replace this item",
+        "return for refund"
+      ],
+      "return_reasons": [
+        "wrong size", "wrong color", "wrong item", "damaged", "defective", "not as described", "changed mind", "don't like", "too small", "too large"
+      ],
+      "return_methods": [
+        "mail", "ship", "drop off", "pickup", "store return", "online return", "return label", "return authorization"
+      ],
+      "misspellings": [
+        "retrn", "retun", "send bak", "refnd", "exchang", "replac", "giv bak", "tak bak", "brng bak", "ship bak"
+      ],
+      "uk_variations": [
+        "return", "send back", "refund", "exchange", "replace", "send back", "give back", "take back", "bring back", "ship back"
+      ],
+      "priority_weights": {
+        "return": 1.0,
+        "send back": 0.9,
+        "refund": 0.8,
+        "exchange": 0.7,
+        "replace": 0.6,
+        "give back": 0.5,
+        "take back": 0.4,
+        "bring back": 0.3,
+        "ship back": 0.2,
+        "return request": 0.1
+      }
+    },
+    "refund": {
+      "primary_keywords": [
+        "refund", "money back", "reimburse", "repay", "compensate", "credit", "cash back", "return money", "give back money", "pay back"
+      ],
+      "action_phrases": [
+        "I want a refund",
+        "request refund",
+        "give me my money back",
+        "refund this purchase",
+        "cancel and refund",
+        "refund my money",
+        "I want my money back",
+        "process refund",
+        "issue refund",
+        "refund request"
+      ],
+      "refund_types": [
+        "full refund", "partial refund", "store credit", "cash refund", "credit card refund", "paypal refund", "bank refund"
+      ],
+      "refund_reasons": [
+        "defective", "damaged", "wrong item", "not delivered", "cancelled", "changed mind", "not satisfied", "quality issue"
+      ],
+      "misspellings": [
+        "refnd", "mony bak", "reimburs", "repay", "compensat", "cred", "cash bak", "retrn mony", "giv bak mony", "pay bak"
+      ],
+      "uk_variations": [
+        "refund", "money back", "reimburse", "repay", "compensate", "credit", "cash back", "return money", "give back money", "pay back"
+      ],
+      "priority_weights": {
+        "refund": 1.0,
+        "money back": 0.9,
+        "reimburse": 0.8,
+        "repay": 0.7,
+        "compensate": 0.6,
+        "credit": 0.5,
+        "cash back": 0.4,
+        "return money": 0.3,
+        "give back money": 0.2,
+        "pay back": 0.1
+      }
+    }
+  }
+}

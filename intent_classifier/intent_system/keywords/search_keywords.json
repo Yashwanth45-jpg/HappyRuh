@@ -1,0 +1,169 @@
+{
+  "search_intent_keywords": {
+    "search_products": {
+      "primary_keywords": [
+        "search", "find", "look", "show", "get", "browse", "explore", "discover"
+      ],
+      "action_phrases": [
+        "I'm looking for",
+        "Show me",
+        "Find me",
+        "Search for",
+        "I need",
+        "I want",
+        "Can you find",
+        "Do you have",
+        "Where can I find",
+        "What do you have in"
+      ],
+      "product_related": [
+        "product", "item", "thing", "stuff", "merchandise", "goods"
+      ],
+      "misspellings": [
+        "serch", "fnd", "lok", "sho", "get", "brows", "explor", "discover", "prodct", "itm", "thng", "stuf", "merchandis", "gods"
+      ],
+      "uk_variations": [
+        "search", "find", "look", "show", "get", "browse", "explore", "discover", "product", "item", "thing", "stuff", "merchandise", "goods"
+      ],
+      "priority_weights": {
+        "search": 1.0,
+        "find": 0.9,
+        "look": 0.8,
+        "show": 0.7,
+        "get": 0.6,
+        "browse": 0.5,
+        "explore": 0.4,
+        "discover": 0.3,
+        "product": 0.2,
+        "item": 0.1
+      }
+    },
+    "search_by_category": {
+      "primary_keywords": [
+        "category", "section", "department", "type", "kind", "sort", "class", "group"
+      ],
+      "action_phrases": [
+        "Show me electronics",
+        "I want to see clothing",
+        "Browse home and garden",
+        "What's in the sports section",
+        "Show me beauty products"
+      ],
+      "category_keywords": [
+        "electronics", "clothing", "shoes", "books", "home", "garden", "sports", "beauty", "health", "toys", "automotive", "jewelry", "furniture", "appliances"
+      ],
+      "misspellings": [
+        "catgory", "secton", "departmnt", "typ", "knd", "srt", "clas", "grp"
+      ],
+      "uk_variations": [
+        "category", "section", "department", "type", "kind", "sort", "class", "group"
+      ],
+      "priority_weights": {
+        "category": 1.0,
+        "section": 0.9,
+        "department": 0.8,
+        "type": 0.7,
+        "kind": 0.6,
+        "sort": 0.5,
+        "class": 0.4,
+        "group": 0.3
+      }
+    },
+    "browse_products": {
+      "primary_keywords": [
+        "browse", "explore", "look around", "check out", "see what's", "what's available", "what's new", "what's popular"
+      ],
+      "action_phrases": [
+        "What's new",
+        "Show me what's popular",
+        "Browse deals",
+        "What's trending",
+        "Show me featured products"
+      ],
+      "browse_types": [
+        "new", "popular", "trending", "featured", "deals", "sales", "specials", "recommended"
+      ],
+      "misspellings": [
+        "brows", "explor", "lok around", "chek out", "se what's", "wht's available", "wht's new", "wht's popular"
+      ],
+      "uk_variations": [
+        "browse", "explore", "look around", "check out", "see what's", "what's available", "what's new", "what's popular"
+      ],
+      "priority_weights": {
+        "browse": 1.0,
+        "explore": 0.9,
+        "look around": 0.8,
+        "check out": 0.7,
+        "see what's": 0.6,
+        "what's available": 0.5,
+        "what's new": 0.4,
+        "what's popular": 0.3
+      }
+    },
+    "filter_products": {
+      "primary_keywords": [
+        "filter", "narrow down", "refine", "sort by", "show only", "exclude", "include", "limit to"
+      ],
+      "action_phrases": [
+        "Filter by price under $100",
+        "Show only red items",
+        "Filter by brand Apple",
+        "Show items with free shipping",
+        "Filter by rating 4+ stars"
+      ],
+      "filter_types": [
+        "price", "brand", "color", "size", "rating", "availability", "shipping", "condition"
+      ],
+      "misspellings": [
+        "flter", "narow down", "refin", "srt by", "sho only", "exclud", "includ", "limit to"
+      ],
+      "uk_variations": [
+        "filter", "narrow down", "refine", "sort by", "show only", "exclude", "include", "limit to"
+      ],
+      "priority_weights": {
+        "filter": 1.0,
+        "narrow down": 0.9,
+        "refine": 0.8,
+        "sort by": 0.7,
+        "show only": 0.6,
+        "exclude": 0.5,
+        "include": 0.4,
+        "limit to": 0.3
+      }
+    },
+    "sort_products": {
+      "primary_keywords": [
+        "sort", "order by", "arrange", "organize", "rank", "prioritize", "sequence", "arrange by"
+      ],
+      "action_phrases": [
+        "Sort by price low to high",
+        "Show cheapest first",
+        "Sort by newest",
+        "Sort by rating",
+        "Sort by popularity"
+      ],
+      "sort_criteria": [
+        "price", "rating", "popularity", "newest", "oldest", "name", "brand", "relevance"
+      ],
+      "sort_orders": [
+        "ascending", "descending", "low to high", "high to low", "a to z", "z to a"
+      ],
+      "misspellings": [
+        "srt", "ordr by", "arang", "organiz", "rnk", "prioritiz", "sequenc", "arang by"
+      ],
+      "uk_variations": [
+        "sort", "order by", "arrange", "organise", "rank", "prioritise", "sequence", "arrange by"
+      ],
+      "priority_weights": {
+        "sort": 1.0,
+        "order by": 0.9,
+        "arrange": 0.8,
+        "organize": 0.7,
+        "rank": 0.6,
+        "prioritize": 0.5,
+        "sequence": 0.4,
+        "arrange by": 0.3
+      }
+    }
+  }
+}

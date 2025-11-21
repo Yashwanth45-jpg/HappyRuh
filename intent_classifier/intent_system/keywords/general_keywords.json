@@ -1,0 +1,209 @@
+{
+  "general_intent_keywords": {
+    "greeting": {
+      "primary_keywords": [
+        "hello", "hi", "hey", "good morning", "good afternoon", "good evening", "greetings", "welcome", "howdy", "hiya"
+      ],
+      "action_phrases": [
+        "hello",
+        "hi there",
+        "good morning",
+        "hey",
+        "greetings",
+        "hi",
+        "hello there",
+        "good afternoon",
+        "good evening",
+        "how are you"
+      ],
+      "casual_greetings": [
+        "hey", "hi", "hello", "hiya", "howdy", "yo", "sup", "what's up", "how's it going", "how are you"
+      ],
+      "formal_greetings": [
+        "good morning", "good afternoon", "good evening", "greetings", "welcome", "pleased to meet you", "nice to meet you"
+      ],
+      "misspellings": [
+        "helo", "hii", "heyy", "gud morning", "gud afternoon", "gud evening", "greetngs", "welcom", "howdy", "hiya"
+      ],
+      "uk_variations": [
+        "hello", "hi", "hey", "good morning", "good afternoon", "good evening", "greetings", "welcome", "howdy", "hiya"
+      ],
+      "priority_weights": {
+        "hello": 1.0,
+        "hi": 0.9,
+        "hey": 0.8,
+        "good morning": 0.7,
+        "good afternoon": 0.6,
+        "good evening": 0.5,
+        "greetings": 0.4,
+        "welcome": 0.3,
+        "howdy": 0.2,
+        "hiya": 0.1
+      }
+    },
+    "goodbye": {
+      "primary_keywords": [
+        "goodbye", "bye", "see you", "farewell", "take care", "have a good day", "until next time", "catch you later", "talk to you later", "see you later"
+      ],
+      "action_phrases": [
+        "goodbye",
+        "see you later",
+        "bye",
+        "thanks, that's all",
+        "have a good day",
+        "take care",
+        "farewell",
+        "until next time",
+        "catch you later",
+        "talk to you later"
+      ],
+      "casual_goodbyes": [
+        "bye", "see ya", "later", "catch you later", "talk to you later", "see you", "peace out", "take it easy"
+      ],
+      "formal_goodbyes": [
+        "goodbye", "farewell", "have a good day", "take care", "until next time", "pleasure talking with you"
+      ],
+      "misspellings": [
+        "goodby", "by", "se you", "farewel", "tak care", "hav a gud day", "untl next time", "catch you latr", "talk to you latr", "se you latr"
+      ],
+      "uk_variations": [
+        "goodbye", "bye", "see you", "farewell", "take care", "have a good day", "until next time", "catch you later", "talk to you later", "see you later"
+      ],
+      "priority_weights": {
+        "goodbye": 1.0,
+        "bye": 0.9,
+        "see you": 0.8,
+        "farewell": 0.7,
+        "take care": 0.6,
+        "have a good day": 0.5,
+        "until next time": 0.4,
+        "catch you later": 0.3,
+        "talk to you later": 0.2,
+        "see you later": 0.1
+      }
+    },
+    "thanks": {
+      "primary_keywords": [
+        "thank you", "thanks", "much appreciated", "grateful", "appreciate", "cheers", "ta", "thank you very much", "thanks a lot", "many thanks"
+      ],
+      "action_phrases": [
+        "thank you",
+        "thanks",
+        "much appreciated",
+        "great, thanks",
+        "perfect, thank you",
+        "thanks a lot",
+        "thank you very much",
+        "many thanks",
+        "cheers",
+        "appreciate it"
+      ],
+      "casual_thanks": [
+        "thanks", "cheers", "ta", "appreciate it", "much appreciated", "thanks a lot", "thanks a bunch"
+      ],
+      "formal_thanks": [
+        "thank you", "thank you very much", "many thanks", "much appreciated", "grateful", "appreciate your help"
+      ],
+      "misspellings": [
+        "thank you", "thnks", "mch appreciated", "gratefl", "apreciate", "cheers", "ta", "thank you vry much", "thnks a lot", "many thnks"
+      ],
+      "uk_variations": [
+        "thank you", "thanks", "much appreciated", "grateful", "appreciate", "cheers", "ta", "thank you very much", "thanks a lot", "many thanks"
+      ],
+      "priority_weights": {
+        "thank you": 1.0,
+        "thanks": 0.9,
+        "much appreciated": 0.8,
+        "grateful": 0.7,
+        "appreciate": 0.6,
+        "cheers": 0.5,
+        "ta": 0.4,
+        "thank you very much": 0.3,
+        "thanks a lot": 0.2,
+        "many thanks": 0.1
+      }
+    },
+    "clarification": {
+      "primary_keywords": [
+        "clarify", "explain", "understand", "confused", "unclear", "don't understand", "what do you mean", "can you explain", "please explain", "more details"
+      ],
+      "action_phrases": [
+        "can you explain that",
+        "I don't understand",
+        "what do you mean",
+        "can you clarify",
+        "I'm confused",
+        "please explain",
+        "more details please",
+        "can you elaborate",
+        "I need clarification",
+        "what does that mean"
+      ],
+      "confusion_indicators": [
+        "confused", "unclear", "don't understand", "not sure", "puzzled", "lost", "don't get it", "unclear", "vague", "ambiguous"
+      ],
+      "explanation_requests": [
+        "explain", "clarify", "elaborate", "more details", "what do you mean", "how does that work", "can you help me understand"
+      ],
+      "misspellings": [
+        "clarify", "expln", "undrstand", "confusd", "unclr", "dont undrstand", "wht do you mean", "can you expln", "pls expln", "mor details"
+      ],
+      "uk_variations": [
+        "clarify", "explain", "understand", "confused", "unclear", "don't understand", "what do you mean", "can you explain", "please explain", "more details"
+      ],
+      "priority_weights": {
+        "clarify": 1.0,
+        "explain": 0.9,
+        "understand": 0.8,
+        "confused": 0.7,
+        "unclear": 0.6,
+        "don't understand": 0.5,
+        "what do you mean": 0.4,
+        "can you explain": 0.3,
+        "please explain": 0.2,
+        "more details": 0.1
+      }
+    },
+    "unknown": {
+      "primary_keywords": [
+        "unknown", "unclear", "confused", "don't understand", "what", "huh", "pardon", "excuse me", "sorry", "repeat"
+      ],
+      "action_phrases": [
+        "I don't understand",
+        "what",
+        "huh",
+        "can you repeat that",
+        "I'm confused",
+        "pardon",
+        "excuse me",
+        "sorry, what",
+        "what did you say",
+        "can you say that again"
+      ],
+      "confusion_indicators": [
+        "what", "huh", "pardon", "excuse me", "sorry", "repeat", "again", "unclear", "confused", "don't understand"
+      ],
+      "repetition_requests": [
+        "repeat", "again", "say that again", "can you repeat", "what did you say", "pardon me", "excuse me"
+      ],
+      "misspellings": [
+        "unkown", "unclr", "confusd", "dont undrstand", "wht", "hu", "pardon", "excus me", "sory", "repat"
+      ],
+      "uk_variations": [
+        "unknown", "unclear", "confused", "don't understand", "what", "huh", "pardon", "excuse me", "sorry", "repeat"
+      ],
+      "priority_weights": {
+        "unknown": 1.0,
+        "unclear": 0.9,
+        "confused": 0.8,
+        "don't understand": 0.7,
+        "what": 0.6,
+        "huh": 0.5,
+        "pardon": 0.4,
+        "excuse me": 0.3,
+        "sorry": 0.2,
+        "repeat": 0.1
+      }
+    }
+  }
+}

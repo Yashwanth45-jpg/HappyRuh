@@ -1,0 +1,189 @@
+{
+  "product_intent_keywords": {
+    "product_info": {
+      "primary_keywords": [
+        "tell me about", "what is", "show details", "information", "specs", "specifications", "features", "details"
+      ],
+      "info_types": [
+        "price", "cost", "availability", "stock", "warranty", "guarantee", "return policy", "shipping", "delivery", "dimensions", "weight", "material", "color", "size"
+      ],
+      "action_phrases": [
+        "tell me about this",
+        "what are the specs",
+        "show me details",
+        "product information",
+        "what's the price",
+        "is this in stock",
+        "what's the warranty",
+        "shipping info",
+        "return policy",
+        "product features"
+      ]
+    },
+    "product_comparison": {
+      "primary_keywords": [
+        "compare", "difference", "versus", "vs", "better", "worse", "similar", "different"
+      ],
+      "comparison_phrases": [
+        "compare these",
+        "what's the difference",
+        "which is better",
+        "compare features",
+        "side by side",
+        "versus",
+        "vs",
+        "similar to",
+        "different from"
+      ]
+    },
+    "product_reviews": {
+      "primary_keywords": [
+        "reviews", "ratings", "feedback", "opinions", "comments", "testimonials"
+      ],
+      "review_phrases": [
+        "show reviews",
+        "what do people say",
+        "customer feedback",
+        "product ratings",
+        "user opinions",
+        "testimonials",
+        "review this product"
+      ]
+    },
+    "product_availability": {
+      "primary_keywords": [
+        "available", "in stock", "out of stock", "backorder", "preorder", "sold out"
+      ],
+      "availability_phrases": [
+        "is this available",
+        "in stock",
+        "out of stock",
+        "when will it be available",
+        "back in stock",
+        "preorder",
+        "sold out"
+      ]
+    },
+    "product_variants": {
+      "size_variants": [
+        "small", "medium", "large", "extra large", "xl", "xxl", "xs", "s", "m", "l", "xl", "xxl", "xxxl"
+      ],
+      "color_variants": [
+        "red", "blue", "green", "black", "white", "yellow", "orange", "purple", "pink", "brown", "gray", "grey", "silver", "gold", "rose gold"
+      ],
+      "style_variants": [
+        "classic", "modern", "vintage", "contemporary", "traditional", "casual", "formal", "sporty", "elegant"
+      ]
+    },
+    "product_categories": {
+      "electronics": [
+        "laptop", "computer", "phone", "smartphone", "tablet", "headphones", "speaker", "camera", "tv", "monitor", "keyboard", "mouse"
+      ],
+      "clothing": [
+        "shirt", "pants", "dress", "jacket", "coat", "sweater", "hoodie", "jeans", "shorts", "skirt", "blouse", "t-shirt"
+      ],
+      "shoes": [
+        "sneakers", "boots", "sandals", "heels", "flats", "running shoes", "athletic shoes", "dress shoes", "casual shoes"
+      ],
+      "home": [
+        "furniture", "decor", "appliances", "kitchen", "bedroom", "living room", "dining room", "bathroom", "garden", "outdoor"
+      ],
+      "books": [
+        "fiction", "non-fiction", "textbook", "novel", "biography", "history", "science", "art", "cooking", "travel"
+      ]
+    },
+    "product_attributes": {
+      "material": [
+        "cotton", "leather", "plastic", "metal", "wood", "glass", "ceramic", "fabric", "synthetic", "natural"
+      ],
+      "brand": [
+        "apple", "samsung", "nike", "adidas", "sony", "lg", "dell", "hp", "amazon", "google", "microsoft", "canon", "nikon"
+      ],
+      "condition": [
+        "new", "used", "refurbished", "like new", "good condition", "excellent condition", "fair condition"
+      ]
+    },
+    "product_actions": {
+      "view_actions": [
+        "view", "see", "show", "display", "look at", "check out"
+      ],
+      "select_actions": [
+        "select", "choose", "pick", "opt for", "go with", "decide on"
+      ],
+      "save_actions": [
+        "save", "bookmark", "favorite", "wishlist", "remember", "keep"
+      ]
+    },
+    "product_info": {
+      "primary_keywords": [
+        "tell me about", "what is", "show details", "information", "specs", "specifications", "features", "details"
+      ],
+      "action_phrases": [
+        "tell me about this",
+        "what are the specs",
+        "show me details",
+        "product information",
+        "what's the price",
+        "is this in stock",
+        "what's the warranty",
+        "shipping info",
+        "return policy",
+        "product features"
+      ],
+      "info_types": [
+        "price", "cost", "availability", "stock", "warranty", "guarantee", "return policy", "shipping", "delivery", "dimensions", "weight", "material", "color", "size"
+      ],
+      "misspellings": [
+        "tel me about", "wht is", "sho details", "informaton", "specs", "specifcations", "featurs", "detals"
+      ],
+      "uk_variations": [
+        "tell me about", "what is", "show details", "information", "specs", "specifications", "features", "details"
+      ],
+      "priority_weights": {
+        "tell me about": 1.0,
+        "what is": 0.9,
+        "show details": 0.8,
+        "information": 0.7,
+        "specs": 0.6,
+        "specifications": 0.5,
+        "features": 0.4,
+        "details": 0.3
+      }
+    },
+    "product_comparison": {
+      "primary_keywords": [
+        "compare", "difference", "versus", "vs", "better", "worse", "similar", "different"
+      ],
+      "action_phrases": [
+        "compare these",
+        "what's the difference",
+        "which is better",
+        "compare features",
+        "side by side",
+        "versus",
+        "vs",
+        "similar to",
+        "different from"
+      ],
+      "comparison_terms": [
+        "better", "worse", "similar", "different", "same", "alike", "unlike", "superior", "inferior", "advantage", "disadvantage"
+      ],
+      "misspellings": [
+        "compar", "diference", "verss", "vs", "beter", "wors", "simlar", "diferent"
+      ],
+      "uk_variations": [
+        "compare", "difference", "versus", "vs", "better", "worse", "similar", "different"
+      ],
+      "priority_weights": {
+        "compare": 1.0,
+        "difference": 0.9,
+        "versus": 0.8,
+        "vs": 0.7,
+        "better": 0.6,
+        "worse": 0.5,
+        "similar": 0.4,
+        "different": 0.3
+      }
+    }
+  }
+}

@@ -173,37 +173,43 @@ class LLMConnector:
         
         # THE PERSONA - Core system instruction for 'Ruh' the HappyRuh assistant
         self.sales_system_instruction = """
-You are 'Ruh', the intelligent and warm shopping assistant for HappyRuh.com.
-You specialize in perfumes, attars, and crystals.
+You're Ruh, a buddy helping friends find their perfect vibe at HappyRuh!
 
-YOUR GOAL:
-Help the user find the perfect product by understanding their 'vibe', occasion, and budget.
+BE LIKE THIS:
+- Talk like you're texting a friend - keep it SHORT (2-4 sentences max)
+- Get straight to the point - no fluff
+- Use casual, warm language: "Hey!", "Perfect for...", "This one's amazing because..."
+- Mention 2-3 products MAX (don't overwhelm them)
+- Quick reason WHY each product fits + price in ₹
+- End with ONE simple question to help them decide
+- Be excited but chill - like you genuinely found something cool for them
 
-GUIDELINES:
-1. TONE: Friendly, professional, and evocative. Use sensory words (e.g., "crisp," "woody," "radiant").
-2. KNOWLEDGE: Only recommend products provided in the CONTEXT below. Do not hallucinate products not in the list.
-3. PROCESS: Briefly explain WHY they fit the user's request. Mention the price in INR (₹).
-4. FORMAT: Keep responses concise. Use bullet points for product comparisons.
-5. CLOSING: Always end with a helpful follow-up question to close the sale or narrow down the choice.
-6. STYLE: Be persuasive but natural - like a knowledgeable friend helping them shop.
+DON'T:
+- Write essays or long paragraphs
+- List every single product
+- Use overly formal language
+- Hallucinate products not in the context
+
+VIBE: Your friend who has great taste and actually knows what they're talking about.
 """
         
         self.chat_system_instruction = """
-You are 'Ruh', a friendly shopping assistant for HappyRuh perfumes, attars, and crystals.
+You're Ruh - helping your friend find something cool!
 
-CONTEXT: The user searched for something, but we found NO matching products in our database.
+SITUATION: They asked for something, but nothing matched. No worries!
 
-YOUR JOB:
-1. Acknowledge their request with empathy, wit, or understanding.
-2. If the request was unusual (e.g., "sadness", "angry", "chaos"), play along slightly but pivot to scents.
-3. Ask a broad preference question (Floral? Woody? Fresh? Calming? Energizing?) to get them back on track.
-4. Keep it SHORT (under 3 sentences) and conversational.
-5. Be helpful and guide them toward what we actually sell.
+RESPOND LIKE THIS:
+- Keep it SUPER short (1-2 sentences max)
+- Be understanding and casual: "Hmm, didn't find that exactly..."
+- Quickly pivot with a helpful question
+- Match their energy (if they're playful, be playful; if serious, be helpful)
 
 EXAMPLES:
-- User: "make people sad" → "That's a very melancholic vibe! While we don't sell sadness, we do have deep, mysterious Oudh scents that capture that mood. Do you prefer woody or spicy notes?"
-- User: "I want chaos" → "Chaos energy, I love it! We have some bold, intense fragrances that command attention. Are you looking for something spicy and unpredictable?"
-- User: "something random" → "Random can be fun! Let me help narrow it down - are you in the mood for something fresh and light, or deep and mysterious?"
+- "Heading to a wedding" → "Nice! What's the vibe - traditional elegant or modern chic?"
+- "something for confidence" → "Love it! Do you prefer bold and spicy or fresh and uplifting scents?"
+- Random query → "Haha, interesting! Tell me more - what's the occasion or mood you're going for?"
+
+VIBE: Your chill friend who's here to help, not lecture.
 """
     
     def format_product_context(self, products_text: str) -> str:
@@ -224,7 +230,7 @@ EXAMPLES:
         context_str = "HERE ARE THE PRODUCTS AVAILABLE IN STOCK:\n\n" + products_text
         return context_str
     
-    def get_chat_response(self, user_message: str, chat_history: List[Dict[str, str]], search_results: str) -> str:
+    def get_chat_response(self, user_message: str, chat_history: List[Dict[str, str]], search_results: str, intent_metadata: Dict = None) -> str:
         """
         Router Logic:
         - If products found -> Use Llama 3.1 8B to create sales pitch
@@ -234,6 +240,7 @@ EXAMPLES:
             user_message: Current user query
             chat_history: List of previous messages [{'role': 'user/assistant', 'content': '...'}]
             search_results: Formatted product search results from Qdrant
+            intent_metadata: Intent classification metadata from LLM (needs_clarification, reasoning, strategy, etc.)
             
         Returns:
             LLM-generated response as string
@@ -242,18 +249,19 @@ EXAMPLES:
         print(f"[DEBUG] User message: {user_message[:100]}...")
         print(f"[DEBUG] Chat history length: {len(chat_history)}")
         print(f"[DEBUG] Search results length: {len(search_results)} chars")
+        print(f"[DEBUG] Intent metadata: {intent_metadata}")
         
         # Router: Check if we have products to sell
         has_products = search_results and search_results.strip() and len(search_results) > 50
         
         if has_products:
             print(f"[ROUTER] Products found -> Using Llama 3.1 8B for sales pitch")
-            return self._generate_sales_pitch(user_message, chat_history, search_results)
+            return self._generate_sales_pitch(user_message, chat_history, search_results, intent_metadata)
         else:
             print(f"[ROUTER] No products found -> Using Qwen 2.5 1.5B for general chat")
-            return self._generate_general_chat(user_message, chat_history)
+            return self._generate_general_chat(user_message, chat_history, intent_metadata)
     
-    def _generate_sales_pitch(self, user_message: str, chat_history: List[Dict[str, str]], search_results: str) -> str:
+    def _generate_sales_pitch(self, user_message: str, chat_history: List[Dict[str, str]], search_results: str, intent_metadata: Dict = None) -> str:
         """
         SCENARIO A: PRODUCTS FOUND
         Uses Llama 3.1 8B to create persuasive product recommendations.
@@ -263,15 +271,29 @@ EXAMPLES:
         # Format product context
         product_context = self.format_product_context(search_results)
         
+        # Add intent context if LLM was used for classification
+        intent_context = ""
+        if intent_metadata and intent_metadata.get('strategy') in ['llm_classification', 'hybrid_llm_validation']:
+            needs_clarification = intent_metadata.get('needs_clarification', False)
+            reasoning = intent_metadata.get('reasoning', '')
+            
+            intent_context = f"""
+
+IMPORTANT CONTEXT FROM INTENT ANALYSIS:
+- The user's query was analyzed and classified
+- Reasoning: {reasoning}
+- Needs clarification: {'Yes - the query might be ambiguous, so ask a clarifying question' if needs_clarification else 'No - the intent is clear'}
+"""
+        
         # Create dynamic system prompt with products
         system_prompt = f"""{self.sales_system_instruction}
 
-User query: "{user_message}"
+Their request: "{user_message}"{intent_context}
 
 {product_context}
 
-Your task: Recommend the best products above based on the user's vibe, occasion, and preferences.
-Be persuasive but natural. Mention prices when relevant. End with a question to close the sale.
+Pick 2-3 perfect matches. Tell them WHY + price. Keep it SHORT and friendly. Ask ONE question to help them choose.
+{'Ask what they need to narrow it down.' if intent_metadata and intent_metadata.get('needs_clarification') else 'Be specific and helpful!'}
 """
         
         # Build message chain
@@ -292,9 +314,9 @@ Be persuasive but natural. Mention prices when relevant. End with a question to 
                     messages=messages,
                     stream=False,
                     options={
-                        'temperature': 0.8,
-                        'top_p': 0.9,
-                        'num_predict': 400,
+                        'temperature': 0.7,
+                        'top_p': 0.85,
+                        'num_predict': 200,
                     }
                 )
                 response_text = response['message']['content']
@@ -315,7 +337,7 @@ Be persuasive but natural. Mention prices when relevant. End with a question to 
             print(f"[ERROR] Llama 3.1 call failed: {e}")
             return "I'm having trouble connecting right now. Please try again in a moment!"
     
-    def _generate_general_chat(self, user_message: str, chat_history: List[Dict[str, str]]) -> str:
+    def _generate_general_chat(self, user_message: str, chat_history: List[Dict[str, str]], intent_metadata: Dict = None) -> str:
         """
         SCENARIO B: NO PRODUCTS / WEIRD QUERY
         Uses Qwen 2.5 1.5B for fast, lightweight conversational responses.

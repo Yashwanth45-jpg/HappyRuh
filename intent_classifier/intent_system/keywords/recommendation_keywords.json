@@ -1,0 +1,168 @@
+{
+  "recommendation_intent_keywords": {
+    "get_recommendations": {
+      "primary_keywords": [
+        "recommend", "recommendation", "suggest", "suggestion", "advise", "advice", "recommend me", "suggest me", "what should", "what would"
+      ],
+      "action_phrases": [
+        "what do you recommend",
+        "show me suggestions",
+        "what's popular",
+        "recommend something for me",
+        "what would I like",
+        "give me recommendations",
+        "suggest something",
+        "what should I buy",
+        "what's trending",
+        "show me what's hot"
+      ],
+      "recommendation_types": [
+        "personalized", "popular", "trending", "similar", "related", "frequently bought", "best selling", "top rated", "featured", "new"
+      ],
+      "context_keywords": [
+        "for me", "based on", "similar to", "like this", "in this category", "for this price", "under", "around", "between", "budget"
+      ],
+      "misspellings": [
+        "recomend", "recomendation", "sugest", "sugestion", "advise", "advice", "recomend me", "sugest me", "wht should", "wht would"
+      ],
+      "uk_variations": [
+        "recommend", "recommendation", "suggest", "suggestion", "advise", "advice", "recommend me", "suggest me", "what should", "what would"
+      ],
+      "priority_weights": {
+        "recommend": 1.0,
+        "recommendation": 0.9,
+        "suggest": 0.8,
+        "suggestion": 0.7,
+        "advise": 0.6,
+        "advice": 0.5,
+        "recommend me": 0.4,
+        "suggest me": 0.3,
+        "what should": 0.2,
+        "what would": 0.1
+      }
+    },
+    "add_to_wishlist": {
+      "primary_keywords": [
+        "wishlist", "wish list", "save", "bookmark", "favorite", "favourite", "remember", "keep", "store", "add to"
+      ],
+      "action_phrases": [
+        "add to wishlist",
+        "save for later",
+        "I want to remember this",
+        "add to favorites",
+        "wishlist this",
+        "bookmark this",
+        "save this item",
+        "add to my list",
+        "keep this",
+        "remember this"
+      ],
+      "wishlist_terms": [
+        "wish list", "favorites", "favourites", "saved items", "bookmarked", "remembered", "kept", "stored", "my list", "personal list"
+      ],
+      "save_indicators": [
+        "save", "keep", "store", "remember", "bookmark", "favorite", "favourite", "wishlist", "add to", "put in"
+      ],
+      "misspellings": [
+        "wishlst", "wish lst", "sav", "bookmrk", "favorit", "favourit", "remembr", "kee", "stor", "add to"
+      ],
+      "uk_variations": [
+        "wishlist", "wish list", "save", "bookmark", "favorite", "favourite", "remember", "keep", "store", "add to"
+      ],
+      "priority_weights": {
+        "wishlist": 1.0,
+        "wish list": 0.9,
+        "save": 0.8,
+        "bookmark": 0.7,
+        "favorite": 0.6,
+        "favourite": 0.6,
+        "remember": 0.5,
+        "keep": 0.4,
+        "store": 0.3,
+        "add to": 0.2
+      }
+    },
+    "remove_from_wishlist": {
+      "primary_keywords": [
+        "remove", "delete", "take off", "remove from", "delete from", "unwishlist", "unfavorite", "unfavourite", "unsave", "unbookmark"
+      ],
+      "action_phrases": [
+        "remove from wishlist",
+        "delete from favorites",
+        "don't save this",
+        "remove from saved",
+        "unwishlist this",
+        "unfavorite this",
+        "unsave this",
+        "remove from my list",
+        "delete from my list",
+        "take off my list"
+      ],
+      "removal_terms": [
+        "remove", "delete", "take off", "unwishlist", "unfavorite", "unfavourite", "unsave", "unbookmark", "clear", "empty"
+      ],
+      "list_references": [
+        "wishlist", "favorites", "favourites", "saved items", "bookmarked", "my list", "personal list", "saved list"
+      ],
+      "misspellings": [
+        "remov", "delet", "tak off", "remov from", "delet from", "unwishlst", "unfavorit", "unfavourit", "unsav", "unbookmrk"
+      ],
+      "uk_variations": [
+        "remove", "delete", "take off", "remove from", "delete from", "unwishlist", "unfavorite", "unfavourite", "unsave", "unbookmark"
+      ],
+      "priority_weights": {
+        "remove": 1.0,
+        "delete": 0.9,
+        "take off": 0.8,
+        "remove from": 0.7,
+        "delete from": 0.6,
+        "unwishlist": 0.5,
+        "unfavorite": 0.4,
+        "unfavourite": 0.4,
+        "unsave": 0.3,
+        "unbookmark": 0.2
+      }
+    },
+    "view_wishlist": {
+      "primary_keywords": [
+        "view", "show", "see", "display", "look at", "check", "browse", "open", "access", "my"
+      ],
+      "action_phrases": [
+        "show my wishlist",
+        "view saved items",
+        "my favorites",
+        "saved for later",
+        "wishlist",
+        "my saved items",
+        "show my favorites",
+        "view my list",
+        "check my wishlist",
+        "browse my saved items"
+      ],
+      "list_types": [
+        "wishlist", "favorites", "favourites", "saved items", "bookmarked", "my list", "personal list", "saved list", "wish list"
+      ],
+      "view_actions": [
+        "view", "show", "see", "display", "look at", "check", "browse", "open", "access", "review"
+      ],
+      "misspellings": [
+        "vew", "sho", "se", "disply", "lok at", "chek", "brows", "opn", "acces", "my"
+      ],
+      "uk_variations": [
+        "view", "show", "see", "display", "look at", "check", "browse", "open", "access", "my"
+      ],
+      "priority_weights": {
+        "view": 1.0,
+        "show": 0.9,
+        "see": 0.8,
+        "display": 0.7,
+        "look at": 0.6,
+        "check": 0.5,
+        "browse": 0.4,
+        "open": 0.3,
+        "access": 0.2,
+        "my": 0.1
+      }
+    }
+  }
+}

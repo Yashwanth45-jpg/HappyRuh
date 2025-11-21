@@ -9,6 +9,21 @@ from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from .llm_connector import generate_response, get_llm_connector
 
+# Import intent classifier
+try:
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+    from intent_classifier.keyword_matcher import KeywordMatcher
+    from intent_classifier import IntentCategory, ActionCode
+    
+    # Initialize keyword matcher
+    _keyword_matcher = KeywordMatcher()
+    INTENT_CLASSIFIER_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Intent classifier not available: {e}")
+    INTENT_CLASSIFIER_AVAILABLE = False
+    _keyword_matcher = None
+
 # Qdrant imports for filtering
 try:
     from qdrant_client import QdrantClient
@@ -319,6 +334,348 @@ def _extract_price_filters(query: str) -> Tuple[Optional[float], Optional[float]
     return (None, None)
 
 
+# LLM-based intent classifier for fallback
+def _classify_intent_with_llm(query: str, context: dict = None) -> Optional[Dict]:
+    """
+    Use LLM to classify intent for unknown or low-confidence queries.
+    Uses direct Ollama API call with a focused classification prompt.
+    Returns dict with category, confidence, needs_clarification, and reasoning.
+    """
+    try:
+        import requests
+        
+        # Dedicated intent classification prompt (not the conversational master prompt)
+        classification_prompt = f"""Classify this e-commerce query. If NOT about shopping → UNKNOWN.
+
+Categories:
+SEARCH = wants products | ADD_TO_CART = add to cart | CHECKOUT = buy now | VIEW_CART = see cart | VIEW_ORDERS = order history
+GREETING = only "hi"/"hello" | GOODBYE = only "bye" | THANKS = only "thanks" | FAQ = policies | ACCOUNT = login/register
+UNKNOWN = anything NOT shopping (weather, jokes, parties, events, personal chat)
+
+Examples:
+"show me perfumes" → CATEGORY: SEARCH | NEEDS_CLARIFICATION: false | REASONING: Wants products
+"hello" → CATEGORY: GREETING | NEEDS_CLARIFICATION: false | REASONING: Simple greeting
+"what's the weather" → CATEGORY: UNKNOWN | NEEDS_CLARIFICATION: false | REASONING: Not about shopping
+"I'm going to a party" → CATEGORY: UNKNOWN | NEEDS_CLARIFICATION: false | REASONING: Personal statement, not shopping
+
+Query: "{query}"
+
+Classify (format: CATEGORY: X | NEEDS_CLARIFICATION: true/false | REASONING: brief):"""
+
+        # Call Ollama API directly with minimal settings for classification
+        ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        ollama_model = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
+        
+        payload = {
+            "model": ollama_model,
+            "prompt": classification_prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.1,  # Low temperature for consistent classification
+                "top_p": 0.9,
+                "max_tokens": 100,  # Short response
+                "stop": ["\n\n", "User query:"]
+            }
+        }
+        
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json=payload,
+            timeout=15
+        )
+        response.raise_for_status()
+        
+        llm_output = response.json().get('response', '').strip()
+        logger.info(f"LLM intent classification output: {llm_output[:200]}")
+        
+        # Parse structured response (supports both newline and pipe formats)
+        category = None
+        needs_clarification = False
+        reasoning = ""
+        
+        # Try pipe-separated format first
+        if '|' in llm_output:
+            parts = llm_output.split('|')
+            for part in parts:
+                part = part.strip()
+                if 'CATEGORY:' in part:
+                    category = part.replace('CATEGORY:', '').strip().upper()
+                elif 'NEEDS_CLARIFICATION:' in part:
+                    clarification_str = part.replace('NEEDS_CLARIFICATION:', '').strip().lower()
+                    needs_clarification = clarification_str in ['true', 'yes', '1']
+                elif 'REASONING:' in part:
+                    reasoning = part.replace('REASONING:', '').strip()
+        else:
+            # Try newline format
+            for line in llm_output.split('\n'):
+                line = line.strip()
+                if line.startswith('CATEGORY:'):
+                    category = line.replace('CATEGORY:', '').strip().upper()
+                elif line.startswith('NEEDS_CLARIFICATION:'):
+                    clarification_str = line.replace('NEEDS_CLARIFICATION:', '').strip().lower()
+                    needs_clarification = clarification_str in ['true', 'yes', '1']
+                elif line.startswith('REASONING:'):
+                    reasoning = line.replace('REASONING:', '').strip()
+        
+        # Validate category
+        valid_categories = ['SEARCH', 'ADD_TO_CART', 'CHECKOUT', 'VIEW_CART', 'VIEW_ORDERS',
+                           'GREETING', 'GOODBYE', 'THANKS', 'FAQ', 'ACCOUNT', 'UNKNOWN']
+        
+        if category and category in valid_categories:
+            # Confidence based on category and clarity
+            if category == 'UNKNOWN':
+                confidence = 0.9  # High confidence that it's NOT e-commerce
+            elif needs_clarification:
+                confidence = 0.6  # Medium confidence, ambiguous
+            else:
+                confidence = 0.8  # Good confidence
+            
+            return {
+                'category': category,
+                'confidence': confidence,
+                'needs_clarification': needs_clarification,
+                'reasoning': reasoning,
+                'strategy': 'llm_classification'
+            }
+        else:
+            # Fallback parsing - look for category keywords in response
+            response_upper = llm_output.upper()
+            for cat in valid_categories:
+                if cat in response_upper:
+                    return {
+                        'category': cat,
+                        'confidence': 0.7,
+                        'needs_clarification': False,
+                        'reasoning': llm_output[:100],
+                        'strategy': 'llm_classification'
+                    }
+            
+            # Default to UNKNOWN
+            return {
+                'category': 'UNKNOWN',
+                'confidence': 0.5,
+                'needs_clarification': False,
+                'reasoning': llm_output[:100],
+                'strategy': 'llm_classification'
+            }
+            
+    except Exception as e:
+        logger.warning(f"LLM intent classification failed: {e}")
+        return None
+
+
+# Hybrid intent classification with LLM fallback
+def classify_intent(query: str, use_hybrid: bool = True, context: dict = None):
+    """
+    Hybrid intent classification combining keyword matching and LLM.
+    
+    Strategy (Options A+B+C combined):
+    1. Try keyword matching first (fast)
+    2. If confidence >= 0.85: Accept result (Option A)
+    3. If confidence 0.70-0.85: Flag for clarification (Option B)
+    4. If confidence < 0.70: Use LLM validation (Option C)
+    5. If no keyword match: Use LLM classification (Option C)
+    
+    Args:
+        query: User's input text
+        use_hybrid: Enable LLM fallback for low confidence
+        context: Additional context (chat history, etc.)
+    """
+    if not _keyword_matcher:
+        return None
+    
+    from types import SimpleNamespace
+    
+    # STEP 1: Try keyword matching first
+    match_result = _keyword_matcher.match_intent(query)
+    
+    # STEP 2: Check if we got a match
+    if not match_result:
+        # Option C: No keyword match - use LLM if hybrid enabled
+        if use_hybrid:
+            logger.info("No keyword match found, falling back to LLM classification")
+            llm_result = _classify_intent_with_llm(query, context)
+            
+            if llm_result:
+                try:
+                    category = IntentCategory[llm_result['category']]
+                except KeyError:
+                    category = IntentCategory.UNKNOWN
+                
+                return SimpleNamespace(
+                    category=category,
+                    action_code=ActionCode.SEARCH_PRODUCTS,
+                    confidence=llm_result['confidence'],
+                    entities={},
+                    metadata={
+                        'strategy': 'llm_fallback',
+                        'needs_clarification': False,
+                        'reasoning': llm_result.get('reasoning', ''),
+                        'processing_time_ms': 0
+                    }
+                )
+        
+        # Return unknown if LLM failed or not enabled
+        return SimpleNamespace(
+            category=IntentCategory.UNKNOWN,
+            action_code=ActionCode.SEARCH_PRODUCTS,
+            confidence=0.0,
+            entities={},
+            metadata={'strategy': 'keyword_matching', 'needs_clarification': False}
+        )
+    
+    # STEP 3: We have a keyword match - check confidence and match type
+    confidence = match_result.confidence_score
+    match_type = match_result.best_match_type
+    
+    # Map intent_name to IntentCategory
+    intent_name = match_result.intent_name.upper().replace(" ", "_")
+    try:
+        category = IntentCategory[intent_name]
+    except KeyError:
+        category = IntentCategory.SEARCH if "search" in intent_name.lower() else IntentCategory.UNKNOWN
+    
+    # Map action_code string to ActionCode enum
+    action_code_str = match_result.action_code.upper()
+    try:
+        action_code = ActionCode[action_code_str]
+    except KeyError:
+        action_code = ActionCode.SEARCH_PRODUCTS
+    
+    # Extract entities from matched keywords
+    entities = {}
+    
+    # ADJUSTED LOGIC: Be more aggressive with fuzzy matches
+    # For fuzzy matches, use stricter threshold (0.85 instead of 0.70)
+    # This prevents false positives like "birthday party" → LOGIN
+    
+    if match_type == 'fuzzy':
+        # Fuzzy matches need higher confidence
+        if confidence >= 0.85:
+            threshold_high = True
+            threshold_medium = False
+            threshold_low = False
+        else:
+            # All fuzzy matches < 0.85 should use LLM validation
+            threshold_high = False
+            threshold_medium = False
+            threshold_low = True
+    else:
+        # Exact and partial matches use normal thresholds
+        threshold_high = confidence >= 0.85
+        threshold_medium = 0.70 <= confidence < 0.85
+        threshold_low = confidence < 0.70
+    
+    # OPTION A: High confidence threshold (>= 0.85) - Accept result
+    if threshold_high:
+        logger.info(f"High confidence ({confidence:.2f}) - accepting keyword match: {category.value}")
+        return SimpleNamespace(
+            category=category,
+            action_code=action_code,
+            confidence=confidence,
+            entities=entities,
+            metadata={
+                'strategy': 'keyword_matching',
+                'needs_clarification': False,
+                'processing_time_ms': match_result.processing_time_ms,
+                'matched_keywords': [m.keyword for m in match_result.matched_keywords],
+                'total_matches': match_result.total_matches,
+                'best_match_type': match_result.best_match_type
+            }
+        )
+    
+    # OPTION B: Medium confidence (0.70-0.85) - Add clarification flag
+    elif threshold_medium:
+        logger.info(f"Medium confidence ({confidence:.2f}) - may need clarification: {category.value}")
+        
+        # Generate clarification message
+        clarification_msg = None
+        if match_result.best_match_type == 'fuzzy':
+            clarification_msg = f"I think you want to {category.value.lower().replace('_', ' ')}, but I'm not entirely sure. Could you clarify?"
+        
+        return SimpleNamespace(
+            category=category,
+            action_code=action_code,
+            confidence=confidence,
+            entities=entities,
+            metadata={
+                'strategy': 'keyword_matching',
+                'needs_clarification': True,
+                'clarification_message': clarification_msg,
+                'processing_time_ms': match_result.processing_time_ms,
+                'matched_keywords': [m.keyword for m in match_result.matched_keywords],
+                'total_matches': match_result.total_matches,
+                'best_match_type': match_result.best_match_type
+            }
+        )
+    
+    # OPTION C: Low confidence (< 0.70) OR fuzzy match < 0.85 - Use LLM validation if hybrid enabled
+    else:
+        logger.info(f"Low confidence ({confidence:.2f}) or fuzzy match - using LLM validation")
+        
+        if use_hybrid:
+            llm_result = _classify_intent_with_llm(query, context)
+            
+            # Use LLM result if:
+            # 1. LLM has higher confidence, OR
+            # 2. LLM says UNKNOWN (indicates false positive), OR
+            # 3. Fuzzy match with low confidence (< 0.80)
+            should_use_llm = (
+                llm_result and (
+                    llm_result['confidence'] > confidence or  # LLM more confident
+                    llm_result['category'] == 'UNKNOWN' or    # LLM detected non-ecommerce query
+                    (match_type == 'fuzzy' and confidence < 0.80)  # Low confidence fuzzy match
+                )
+            )
+            
+            if should_use_llm:
+                logger.info(f"Using LLM classification: {llm_result['category']} (confidence: {llm_result['confidence']:.2f}, keyword was: {category.value} @ {confidence:.2f})")
+                
+                try:
+                    llm_category = IntentCategory[llm_result['category']]
+                except KeyError:
+                    llm_category = IntentCategory.UNKNOWN
+                
+                # Use LLM's needs_clarification flag
+                llm_needs_clarification = llm_result.get('needs_clarification', False)
+                clarification_msg = None
+                if llm_needs_clarification:
+                    clarification_msg = f"I classified this as {llm_category.value.lower().replace('_', ' ')}, but I'm not entirely sure. {llm_result.get('reasoning', '')}"
+                
+                return SimpleNamespace(
+                    category=llm_category,
+                    action_code=ActionCode.SEARCH_PRODUCTS,
+                    confidence=llm_result['confidence'],
+                    entities=entities,
+                    metadata={
+                        'strategy': 'hybrid_llm_validation',
+                        'needs_clarification': llm_needs_clarification,
+                        'clarification_message': clarification_msg,
+                        'reasoning': llm_result.get('reasoning', ''),
+                        'keyword_match': category.value,
+                        'keyword_confidence': confidence,
+                        'processing_time_ms': match_result.processing_time_ms
+                    }
+                )
+        
+        # Fallback: return keyword result with clarification flag
+        return SimpleNamespace(
+            category=category,
+            action_code=action_code,
+            confidence=confidence,
+            entities=entities,
+            metadata={
+                'strategy': 'keyword_matching_low_confidence',
+                'needs_clarification': True,
+                'clarification_message': f"I'm not very confident about this. Did you mean to {category.value.lower().replace('_', ' ')}?",
+                'processing_time_ms': match_result.processing_time_ms,
+                'matched_keywords': [m.keyword for m in match_result.matched_keywords],
+                'total_matches': match_result.total_matches,
+                'best_match_type': match_result.best_match_type
+            }
+        )
+
+
 def orchestrate_query(
     user_query: str, 
     user_id: str = "anonymous", 
@@ -327,6 +684,7 @@ def orchestrate_query(
 ) -> str:
     """
     Full pipeline:
+      - classify intent
       - perform semantic search
       - call LLM with context and conversation history
       - return clean, product-focused HTML
@@ -338,6 +696,45 @@ def orchestrate_query(
         chat_history: List of previous messages [{'role': 'user'/'assistant', 'content': '...'}]
     """
     logger.info(f"--- Orchestrator processing query: '{user_query}'")
+    
+    # 1. CLASSIFY INTENT
+    intent_result = None
+    if INTENT_CLASSIFIER_AVAILABLE:
+        try:
+            # Use hybrid mode for better accuracy (falls back to keyword-only if embeddings unavailable)
+            intent_result = classify_intent(user_query, use_hybrid=True, context={
+                'chat_history': chat_history,
+                'session_id': session_id,
+                'user_id': user_id
+            })
+            
+            logger.info(f"Intent classified: {intent_result.category.value} (action: {intent_result.action_code.value}, confidence: {intent_result.confidence:.2f})")
+            logger.info(f"Classification strategy: {intent_result.metadata.get('strategy', 'unknown')}")
+            logger.info(f"Extracted entities: {intent_result.entities}")
+            
+            # Check if clarification is needed (only for keyword-based classification)
+            # If LLM was used, let it handle clarification in the response
+            if intent_result.metadata.get('needs_clarification'):
+                strategy = intent_result.metadata.get('strategy', '')
+                # Only return early clarification for keyword-based matches
+                if strategy not in ['llm_classification', 'hybrid_llm_validation']:
+                    clarification = intent_result.metadata.get('clarification_message')
+                    if clarification:
+                        return f'<div style="padding: 15px;"><p>{clarification}</p></div>'
+            
+            # Handle specific intents with quick responses
+            if intent_result.category == IntentCategory.GREETING:
+                return '<div style="padding: 15px;"><p>Hello! 👋 Welcome to HappyRuh. I\'m here to help you find the perfect fragrance or crystal. What are you looking for today?</p></div>'
+            
+            if intent_result.category == IntentCategory.GOODBYE:
+                return '<div style="padding: 15px;"><p>Thank you for visiting HappyRuh! Feel free to come back anytime. Have a great day! 🌟</p></div>'
+            
+            if intent_result.category == IntentCategory.THANKS:
+                return '<div style="padding: 15px;"><p>You\'re welcome! Happy to help. Is there anything else you\'d like to know? 😊</p></div>'
+                
+        except Exception as e:
+            logger.warning(f"Intent classification failed: {e}")
+            intent_result = None
 
     QUEUE_CONVO_PATH = os.getenv("CONVO_HIST_QUEUE_PATH", None)
     query_id = str(uuid.uuid4())
@@ -382,6 +779,19 @@ def orchestrate_query(
     logger.info(f"Using queue_id for completion: {queue_id}")
     
     try:
+        # 2. Use extracted entities for better search
+        # If intent classifier extracted price filters or product type, use them
+        min_price, max_price = _extract_price_filters(user_query)
+        
+        # Override with intent entities if available
+        if intent_result and intent_result.entities:
+            if 'min_price' in intent_result.entities:
+                min_price = intent_result.entities['min_price']
+            if 'max_price' in intent_result.entities:
+                max_price = intent_result.entities['max_price']
+            
+            logger.info(f"Using intent entities: min_price={min_price}, max_price={max_price}")
+        
         # Search for relevant products
         logger.info("Starting semantic search...")
         context = semantic_search(user_query, top_k=4)
@@ -397,13 +807,26 @@ def orchestrate_query(
         if chat_history is None:
             chat_history = []
         
+        # Prepare intent metadata to pass to LLM (only if LLM was used for classification)
+        intent_metadata = None
+        if intent_result and intent_result.metadata.get('strategy') in ['llm_classification', 'hybrid_llm_validation']:
+            intent_metadata = {
+                'needs_clarification': intent_result.metadata.get('needs_clarification', False),
+                'reasoning': intent_result.metadata.get('reasoning', ''),
+                'strategy': intent_result.metadata.get('strategy', ''),
+                'confidence': intent_result.confidence,
+                'category': intent_result.category.value
+            }
+            logger.info(f"Passing intent metadata to LLM: {intent_metadata}")
+        
         # Call LLM to generate response using new chat-based approach
         logger.info("Calling LLM to generate response with chat history...")
         llm_connector = get_llm_connector()
         llm_response = llm_connector.get_chat_response(
             user_message=user_query,
             chat_history=chat_history,
-            search_results=context
+            search_results=context,
+            intent_metadata=intent_metadata
         )
         logger.info(f"LLM response generated (length: {len(llm_response)} chars)")
         
