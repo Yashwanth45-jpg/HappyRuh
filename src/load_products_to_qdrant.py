@@ -100,6 +100,12 @@ def create_collection():
 def load_products():
     products = fetch_all_raw_products()
     print(f"📦 Loaded {len(products)} products from PostgreSQL")
+    products = [
+        p for p in products
+        if p.get("product_type", "").lower() not in ["ticket", "event"]
+    ]
+    print(f"✔ {len(products)} products after filtering")
+
     return products
 
 
@@ -158,11 +164,16 @@ def upload_products_with_summarization(products):
         else:
             image_vector = [0] * IMAGE_VECTOR_SIZE
 
+        try:
+            point_id = int(product_id)
+        except:
+            point_id = idx + 1    
+
         # ------------------------------
         # CREATE POINT
         # ------------------------------
         point = models.PointStruct(
-            id=idx + 1,
+            id=point_id,
             vector={
                 "text": text_vector,
                 "image": image_vector
@@ -175,6 +186,7 @@ def upload_products_with_summarization(products):
                 "price": price,
                 "images": images,
                 "vendor": product.get("vendor", ""),
+                "product_type": product.get("product_type", ""),
             }
         )
 
