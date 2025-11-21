@@ -63,23 +63,28 @@ const MessageBubble = ({ message, onShowProducts }) => {
             >
               <div className="flex items-center gap-2 flex-1">
                 <div className="flex -space-x-2">
-                  {message.products.slice(0, 3).map((product, index) => (
-                    <div
-                      key={product.id}
-                      className="w-8 h-8 rounded-full overflow-hidden bg-white border-2 border-purple-400"
-                      style={{ zIndex: 3 - index }}
-                    >
-                      <img
-                        src={product.image || '/placeholder-product.png'}
-                        alt={product.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-700"><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></div>`;
-                        }}
-                      />
-                    </div>
-                  ))}
+                  {message.products.slice(0, 3).map((product, index) => {
+                    const imageUrl = product.images && product.images.length > 0 
+                      ? product.images[0] 
+                      : 'https://via.placeholder.com/100x100?text=No+Image';
+                    
+                    return (
+                      <div
+                        key={product.id}
+                        className="w-8 h-8 rounded-full overflow-hidden bg-white border-2 border-purple-400"
+                        style={{ zIndex: 3 - index }}
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={product.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/100x100?text=Error';
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
                 <span className="text-sm text-purple-300 font-medium">
                   {message.products.length} {message.products.length === 1 ? 'product' : 'products'}
